@@ -3,7 +3,7 @@ import { ref, computed, reactive, watch, onMounted } from 'vue'
 import { useRaceStore } from '@/stores/race'
 import { useRaceEngine } from '@/composables/useRaceEngine'
 import { type Horse } from '@/stores/horses'
-
+import { cn } from '@/lib/utils'
 const props = defineProps<{
   horses: Horse[]
   isRacing: boolean
@@ -104,7 +104,11 @@ onMounted(() => {
               '--race-duration': `${raceDurations[horse.id] || 10}s`,
             }"
           >
-            <div class="horse-emoji">🐎</div>
+            <div
+              :class="cn('horse-emoji', { 'rotate-y-180': isRacing && raceDurations[horse.id] })"
+            >
+              🐎
+            </div>
           </div>
         </div>
       </div>

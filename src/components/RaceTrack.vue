@@ -4,6 +4,7 @@ import { useRaceStore } from '@/stores/race'
 import { useRaceEngine } from '@/composables/useRaceEngine'
 import { type Horse } from '@/stores/horses'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
+import { toast } from 'vue-sonner'
 
 // Import modular components
 import RaceHeader from '@/components/race/RaceHeader.vue'
@@ -23,7 +24,7 @@ const emit = defineEmits<{
   countdownComplete: []
 }>()
 
-const countdownRef = ref(null)
+const countdownRef = ref<InstanceType<typeof CountdownTimer> | null>(null)
 const isCountingDown = ref(false)
 
 const raceStore = useRaceStore()
@@ -93,6 +94,18 @@ watch(
   { immediate: true },
 )
 
+// Watch for currentRound changes to clear errors when it becomes available
+watch(
+  () => currentRound.value,
+  (newValue) => {
+    if (newValue) {
+      console.log('Current round is now available:', newValue.id)
+      raceError.value = null
+    }
+  },
+  { immediate: true },
+)
+
 // Start the actual race
 const startRace = () => {
   console.log('Starting actual race animation')
@@ -154,16 +167,15 @@ const startRace = () => {
 
       setTimeout(() => {
         console.log(`Horse #${horse.id} reached the finish line!`)
+        toast.success(`Horse #${horse.id} reached the finish line!`)
         finishedHorses.add(horse.id)
 
-        // If all horses have finished, emit race completed event after a short delay
+        // If all horses have finished, emit race completed event immediately
         if (finishedHorses.size === props.horses.length) {
-          setTimeout(() => {
-            console.log('All horses have finished the race')
-            isAnimating.value = false
-            emit('raceCompleted', raceError.value)
-            console.log('raceCompleted event emitted')
-          }, 500 / props.speedMultiplier) // Short delay after the last horse
+          console.log('All horses have finished the race')
+          isAnimating.value = false
+          emit('raceCompleted', raceError.value || undefined)
+          console.log('raceCompleted event emitted')
         }
       }, adjustedTime * 1000) // Convert to milliseconds
     })

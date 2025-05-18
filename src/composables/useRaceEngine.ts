@@ -44,9 +44,6 @@ export function useRaceEngine() {
     )
     isSimulating.value = true
 
-    // isRacing artık burada ayarlanmayacak, çünkü Start düğmesine basıldığında ayarlanıyor ve countdown başlıyor
-    // raceStore.isRacing = true
-
     const { id: roundId, distance, horseIds } = raceStore.currentRound
 
     // Log current round data
@@ -83,19 +80,9 @@ export function useRaceEngine() {
     console.log('Storing results for round', roundId)
     resultsStore.addResult(roundId, results)
 
-    // Get the adjusted time based on the speed multiplier
-    const speedMultiplier = raceStore.speedMultiplier
-    const adjustedWaitTime = (slowestTime * 1000 + 200) / speedMultiplier
-
-    // Wait for animation to finish with speed multiplier applied
-    console.log(
-      'Waiting for animation to complete... (will wait',
-      adjustedWaitTime,
-      'ms with',
-      speedMultiplier,
-      'x speed)',
-    )
-    await new Promise((resolve) => setTimeout(resolve, adjustedWaitTime))
+    // We no longer need to wait here since the RaceTrack component handles the race visualization
+    // and will emit the race-completed event when all horses finish
+    console.log('Race results calculated, waiting for RaceTrack to handle the visualization')
 
     console.log('Simulation complete, setting isSimulating to false')
     isSimulating.value = false

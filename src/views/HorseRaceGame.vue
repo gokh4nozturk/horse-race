@@ -6,7 +6,8 @@ import { useRaceStore } from '@/stores/race'
 import { useResultsStore } from '@/stores/results'
 import { useRaceEngine } from '@/composables/useRaceEngine'
 
-import HorseCard from '@/components/HorseCard.vue'
+// At kartları artık kullanılmıyor
+// import HorseCard from '@/components/HorseCard.vue'
 import RaceTrack from '@/components/RaceTrack.vue'
 import ResultBoard from '@/components/ResultBoard.vue'
 import GameControls from '@/components/GameControls.vue'
@@ -48,7 +49,24 @@ function handleGenerate() {
 
 function handleStart() {
   console.log('Start race clicked')
+  // Only set the UI state to racing, actual race will start after countdown
+  raceStore.isRacing = true
+
+  // Debugging amaçlı log ekleyelim
+  console.log('Start button clicked, isRacing set to true - countdown should start now')
+}
+
+function handleCountdownComplete() {
+  console.log('Countdown completed, now starting the actual race')
+  // Şimdi yarış motorunu başlatacağız
+  if (!raceStore.isRacing) {
+    // Eğer geri sayım bitti ama isRacing false ise, tekrar true yapalım
+    console.log('isRacing is false, setting it to true')
+    raceStore.isRacing = true
+  }
+  // Yarış mantığını başlat
   raceEngine.startRace()
+  console.log('Race engine startRace called after countdown')
 }
 
 function handleNextRound() {
@@ -96,14 +114,18 @@ onMounted(() => {
   console.log('HorseRaceGame component mounted')
   // Initialize on mount
   raceEngine.initialize()
-  isInitialized.value = true
-  console.log(
-    'Game initialized with',
-    horsesStore.horses.length,
-    'horses and',
-    raceStore.schedule.length,
-    'rounds',
-  )
+
+  // Sayfanın yüklenmesi sırasında kısa bir gecikme ekleyerek, store'ların güncellenmesini sağlayalım
+  setTimeout(() => {
+    isInitialized.value = true
+    console.log(
+      'Game initialized with',
+      horsesStore.horses.length,
+      'horses and',
+      raceStore.schedule.length,
+      'rounds',
+    )
+  }, 100)
 })
 
 // Watch for route changes
@@ -147,26 +169,16 @@ watch(route.path, (newPath) => {
     </header>
 
     <main class="flex flex-col gap-6 relative">
-      <!-- Section: Horses List -->
-      <section
-        v-if="
-          !raceStore.isRacing && horsesStore.horses.length > 0 && !raceStore.isAllRoundsCompleted
-        "
-        class="mb-6"
-      >
-        <h2 class="text-2xl font-semibold mb-4">Horses</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <HorseCard v-for="horse in horsesStore.horses" :key="horse.id" :horse="horse" />
-        </div>
-      </section>
+      <!-- At kartları kaldırıldı -->
 
       <!-- Section: Race Track -->
-      <section v-if="raceStore.isRacing || raceStore.isRoundCompleted" class="mb-6">
+      <section v-if="raceStore.schedule.length > 0" class="mb-6">
         <RaceTrack
           :horses="raceStore.horsesInCurrentRound"
           :is-racing="raceStore.isRacing"
           :speed-multiplier="raceStore.speedMultiplier"
           @race-completed="handleRaceCompleted"
+          @countdown-complete="handleCountdownComplete"
         />
       </section>
 

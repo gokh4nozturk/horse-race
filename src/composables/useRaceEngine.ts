@@ -23,7 +23,9 @@ export function useRaceEngine() {
     const randomFactor = 0.9 + Math.random() * 0.2
 
     // Calculate total time for the distance
-    return Number.parseFloat((baseTimePerMeter * distance * randomFactor).toFixed(2))
+    const finalTime = Number.parseFloat((baseTimePerMeter * distance * randomFactor).toFixed(2))
+    console.log(`Horse #${horseId} calculated time: ${finalTime}s (condition: ${horse.condition})`)
+    return finalTime
   }
 
   async function simulateRace() {
@@ -41,23 +43,30 @@ export function useRaceEngine() {
       raceStore.isRoundCompleted,
     )
     isSimulating.value = true
-    // Set isRacing to true BEFORE simulating to ensure the UI updates
-    raceStore.isRacing = true
+
+    // isRacing artık burada ayarlanmayacak, çünkü Start düğmesine basıldığında ayarlanıyor ve countdown başlıyor
+    // raceStore.isRacing = true
+
     const { id: roundId, distance, horseIds } = raceStore.currentRound
 
     // Log current round data
-    console.log('Round data:', { roundId, distance, horseIds })
+    console.log('Round data:', { roundId, distance, horseIds, horseCount: horseIds.length })
 
     // Calculate finish times for all horses
     const results: HorseResult[] = horseIds.map((horseId) => {
       const time = calculateRaceTime(horseId, distance)
-      console.log(`Horse #${horseId} calculated time: ${time}s`)
       return {
         horseId,
         place: 0, // Will be determined after sorting
         time: time,
       }
     })
+
+    // Log all race times for debugging
+    console.log(
+      'Race times:',
+      results.map((r) => ({ horseId: r.horseId, time: r.time })),
+    )
 
     // Sort by time (fastest first) and assign places
     results
@@ -104,8 +113,7 @@ export function useRaceEngine() {
       return
     }
 
-    console.log('Starting race...')
-    raceStore.startRace() // This sets isRacing to true in raceStore
+    console.log('Starting simulation for race...')
     await simulateRace()
   }
 

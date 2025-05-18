@@ -30,6 +30,18 @@ export const useRaceStore = defineStore('race', {
 
     horsesInCurrentRound: (state) => {
       const horsesStore = useHorsesStore()
+
+      // Eğer yarış henüz başlamamışsa (-1) ve program oluşturulmuşsa, ilk turun atlarını göster
+      if (state.currentRoundIndex === -1) {
+        if (state.schedule.length > 0) {
+          return state.schedule[0].horseIds
+            .map((id) => horsesStore.getHorseById(id))
+            .filter((horse) => horse !== undefined) as Horse[]
+        }
+        return []
+      }
+
+      // Normal durumda mevcut turun atlarını göster
       if (!state.schedule[state.currentRoundIndex]) return []
 
       return state.schedule[state.currentRoundIndex].horseIds

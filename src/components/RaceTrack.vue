@@ -93,22 +93,23 @@ onMounted(() => {
 </script>
 <template>
   <Card class="overflow-hidden">
-    <CardHeader v-if="currentRound" class="pb-3 text-center">
+    <CardHeader class="pb-3 text-center">
       <h3 class="text-xl font-semibold">Round {{ currentRound.id }}</h3>
-      <p class="text-sm text-gray-600">Distance: {{ currentRound.distance }}m</p>
-      <span
+      <p class="text-sm text-muted-foreground">Distance: {{ currentRound.distance }}m</p>
+
+      <div
         v-if="speedMultiplier > 1"
-        class="inline-block mt-1 text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full"
+        class="text-sm bg-blue-200 dark:bg-blue-900 px-2 py-1 rounded-2xl text-blue-700 dark:text-blue-200 font-semibold"
       >
         {{ speedMultiplier }}x Speed
-      </span>
+      </div>
     </CardHeader>
     <CardContent>
       <div class="relative py-4">
         <!-- Finish line -->
         <div
-          class="absolute h-full w-0.5 bg-black top-0 right-[50px] z-10 before:content-['🏁'] before:absolute before:top-[-20px] before:left-[-8px] before:text-xl"
-        ></div>
+          class="absolute h-full w-0.5 invert-100 bg-background top-0 right-[50px] z-10 before:content-['🏁'] before:absolute before:top-[-20px] before:left-[-8px] before:text-xl"
+        />
 
         <!-- Horse lanes -->
         <div v-for="horse in horses" :key="horse.id" class="flex mb-4 h-10 last:mb-0">

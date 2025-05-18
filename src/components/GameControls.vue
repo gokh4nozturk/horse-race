@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
+import { Play, SkipForward, Ban, MemoryStick } from 'lucide-vue-next'
 
 defineProps<{
   currentRoundIndex: number
@@ -39,17 +40,32 @@ const onReset = () => {
 
 <template>
   <div class="flex flex-wrap gap-2">
-    <Button variant="default" @click="onGenerate" :disabled="isRacing"> Generate Race </Button>
+    <Button
+      variant="outline"
+      @click="onGenerate"
+      :disabled="isRacing"
+      class="border-primary hover:bg-primary/10 hover:text-primary"
+    >
+      <MemoryStick class="size-4" />
+      Generate Race
+    </Button>
 
-    <Button variant="secondary" @click="onStart" :disabled="!canStart || isRacing">
+    <Button variant="default" @click="onStart" :disabled="!canStart || isRacing">
+      <Play class="size-4" />
       {{ currentRoundIndex < 0 ? 'Start Race' : 'Start Round' }}
     </Button>
 
-    <Button variant="outline" @click="onNextRound" :disabled="!canNext || isRacing || isLastRound">
+    <Button
+      variant="secondary"
+      @click="onNextRound"
+      :disabled="!canNext || isRacing || isLastRound"
+    >
+      <SkipForward class="size-4" />
       Next Round
     </Button>
 
     <Button variant="destructive" size="default" @click="onReset" :disabled="isRacing">
+      <Ban class="size-4" />
       Reset
     </Button>
   </div>

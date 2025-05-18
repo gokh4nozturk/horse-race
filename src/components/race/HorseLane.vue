@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, watch, onUnmounted } from 'vue'
 import { type Horse } from '@/stores/horses'
 import HorseAvatar from './HorseAvatar.vue'
 
@@ -11,6 +11,8 @@ const props = defineProps<{
   raceDuration: number | undefined
   speedMultiplier: number
 }>()
+
+const emit = defineEmits(['horseFinished'])
 
 // Helper to adjust duration based on speed multiplier
 const getAdjustedDuration = (duration: number): number => {
@@ -26,23 +28,171 @@ const hasRaceDuration = computed(() => {
 const bgClass = computed(() => {
   return props.index % 2 === 0 ? 'bg-gray-900/70' : 'bg-gray-950/70'
 })
+
+// Animation variables
+const horsePosition = ref(12) // Starting at 12px (left edge)
+const finishPosition = ref(0) // Will be calculated on mount
+const animationStartTime = ref(0)
+const animationFrameId = ref(0)
+const hasFinished = ref(false) // Track if horse has finished the race
+
+// Calculate target DOM element width on mount
+onMounted(() => {
+  // Use a small delay to ensure DOM is fully rendered
+  setTimeout(() => {
+    // Get the parent element directly using this component's template
+    const trackElement = document.querySelector('.flex-1.relative')
+    if (trackElement) {
+      console.log('Track element width:', trackElement.clientWidth)
+      finishPosition.value = trackElement.clientWidth - 80
+    } else {
+      console.error('Could not find track element')
+      // Fallback to a reasonable default if element not found
+      finishPosition.value = 800
+    }
+
+    // Start animation if racing is already active
+    if (props.isRacing && hasRaceDuration.value) {
+      horsePosition.value = 12 // Reset to start position
+      animationStartTime.value = 0
+      hasFinished.value = false // Reset finished state
+      animationFrameId.value = requestAnimationFrame(animateHorse)
+    }
+  }, 100)
+})
+
+// Frame-based animation function
+const animateHorse = (timestamp: number) => {
+  if (!animationStartTime.value) {
+    animationStartTime.value = timestamp
+    console.log(`Horse #${props.horse.id} animation started, finish position:`, finishPosition.value)
+  }
+
+  // Calculate elapsed time
+  const elapsedMs = timestamp - animationStartTime.value
+  const duration = hasRaceDuration.value ? getAdjustedDuration(props.raceDuration || 10) * 1000 : 10000
+
+  // Calculate progress (0 to 1)
+  const progress = Math.min(elapsedMs / duration, 1)
+
+  // Update position with easing
+  // Using cubic-bezier-like easing
+  const eased = cubicBezier(0.34, 1.1, 0.64, 1, progress)
+  const newPosition = 12 + finishPosition.value * eased
+
+  // Only log on significant changes to avoid console spam
+  if (Math.abs(horsePosition.value - newPosition) > 10) {
+    console.log(`Horse #${props.horse.id} position: ${Math.round(newPosition)}px, progress: ${(progress * 100).toFixed(1)}%`)
+  }
+
+  horsePosition.value = newPosition
+
+  // Check if horse has finished
+  if (progress >= 1 && !hasFinished.value) {
+    hasFinished.value = true
+    console.log(`Horse #${props.horse.id} animation complete`)
+    emit('horseFinished', props.horse.id)
+  }
+
+  // Continue animation if not finished
+  if (progress < 1 && props.isRacing) {
+    animationFrameId.value = requestAnimationFrame(animateHorse)
+  }
+}
+
+// Cubic bezier function implementation
+const cubicBezier = (x1: number, y1: number, x2: number, y2: number, t: number) => {
+  // Implementation of cubic bezier curve calculation
+  const cx = 3 * x1
+  const bx = 3 * (x2 - x1) - cx
+  const ax = 1 - cx - bx
+
+  const cy = 3 * y1
+  const by = 3 * (y2 - y1) - cy
+  const ay = 1 - cy - by
+
+  const sampleCurveX = (t: number) => ((ax * t + bx) * t + cx) * t
+  const sampleCurveY = (t: number) => ((ay * t + by) * t + cy) * t
+
+  // Find t for given x using Newton-Raphson iteration
+  let t2 = t
+  for (let i = 0; i < 8; i++) {
+    const x2 = sampleCurveX(t2) - t
+    if (Math.abs(x2) < 0.001) break
+    const d2 = (3 * ax * t2 + 2 * bx) * t2 + cx
+    if (Math.abs(d2) < 1e-6) break
+    t2 = t2 - x2 / d2
+  }
+
+  return sampleCurveY(t2)
+}
+
+// Watch for racing state change
+watch(
+  () => props.isRacing,
+  (isRacing) => {
+    console.log(`Horse #${props.horse.id} racing state changed:`, isRacing)
+
+    if (isRacing && hasRaceDuration.value) {
+      // Cancel any existing animation first
+      if (animationFrameId.value) {
+        cancelAnimationFrame(animationFrameId.value)
+        animationFrameId.value = 0
+      }
+
+      // Reset animation state
+      console.log(`Horse #${props.horse.id} animation reset, duration:`, props.raceDuration)
+      horsePosition.value = 12 // Reset to start position
+      animationStartTime.value = 0
+      hasFinished.value = false // Reset finished state
+
+      // Ensure we have a valid finish position
+      if (finishPosition.value <= 0) {
+        console.log('Recalculating finish position')
+        const trackElement = document.querySelector('.flex-1.relative')
+        if (trackElement) {
+          console.log('Track element width:', trackElement.clientWidth)
+          finishPosition.value = trackElement.clientWidth - 80
+        } else {
+          console.warn('Using fallback track width')
+          finishPosition.value = 800
+        }
+      }
+
+      // Start a new animation
+      animationFrameId.value = requestAnimationFrame(animateHorse)
+    } else {
+      // Stop animation
+      if (animationFrameId.value) {
+        cancelAnimationFrame(animationFrameId.value)
+        animationFrameId.value = 0
+      }
+      horsePosition.value = 12
+      hasFinished.value = false // Reset finished state
+    }
+  },
+  { immediate: true }
+)
+
+// Clean up animation on component unmount
+onUnmounted(() => {
+  if (animationFrameId.value) {
+    cancelAnimationFrame(animationFrameId.value)
+    animationFrameId.value = 0
+  }
+})
 </script>
 
 <template>
-  <div
-    class="flex h-20 relative overflow-hidden transition-all duration-500"
-    :class="[bgClass, { 'h-16': isRacing }]"
-  >
+  <div class="flex h-20 relative overflow-hidden transition-all duration-500" :class="[bgClass, { 'h-16': isRacing }]">
     <!-- Lane marker -->
-    <div
-      class="absolute inset-y-0 left-0 w-1 transition-colors duration-300"
-      :style="{ backgroundColor: horse.color }"
-    ></div>
+    <div class="absolute inset-y-0 left-0 w-1 transition-colors duration-300" :style="{ backgroundColor: horse.color }">
+    </div>
 
     <!-- Lane background with subtle track texture -->
     <div
-      class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0wIDBoNDB2MUgweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]"
-    ></div>
+      class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0wIDBoNDB2MUgweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]">
+    </div>
 
     <!-- Collapsible horse info area -->
     <div
@@ -50,61 +200,40 @@ const bgClass = computed(() => {
       :class="{
         'w-64 px-5 py-2': !isRacing,
         'w-14 px-2 py-1': isRacing,
-      }"
-      :style="{
+      }" :style="{
         transition: 'all 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
-      }"
-    >
+      }">
       <!-- Collapsed view (just horse number) - only visible when racing -->
-      <div
-        v-if="isRacing"
-        class="relative group flex-shrink-0 opacity-0 transition-opacity duration-300"
-        :class="{ 'opacity-100': isRacing }"
-        :style="{
+      <div v-if="isRacing" class="relative group flex-shrink-0 opacity-0 transition-opacity duration-300"
+        :class="{ 'opacity-100': isRacing }" :style="{
           transitionDelay: isRacing ? '0.2s' : '0s',
-        }"
-      >
+        }">
         <div
           class="w-10 h-10 flex items-center justify-center text-lg font-bold flex-shrink-0 rounded-lg shadow-lg transition-all border-2 overflow-hidden"
-          :style="{ borderColor: horse.color }"
-        >
-          <div
-            class="absolute inset-0 opacity-60 rounded-lg"
-            :style="{ backgroundColor: horse.color }"
-          ></div>
+          :style="{ borderColor: horse.color }">
+          <div class="absolute inset-0 opacity-60 rounded-lg" :style="{ backgroundColor: horse.color }"></div>
           <span class="relative text-white font-extrabold">{{ index + 1 }}</span>
         </div>
       </div>
 
       <!-- Expanded view (full horse info) - hidden when racing -->
-      <div
-        class="flex items-center transition-all duration-500"
-        :class="{
-          'opacity-100 translate-x-0': !isRacing,
-          'opacity-0 -translate-x-10': isRacing,
-        }"
-        :style="{
-          transitionDelay: isRacing ? '0s' : '0.2s',
-        }"
-      >
+      <div class="flex items-center transition-all duration-500" :class="{
+        'opacity-100 translate-x-0': !isRacing,
+        'opacity-0 -translate-x-10': isRacing,
+      }" :style="{
+        transitionDelay: isRacing ? '0s' : '0.2s',
+      }">
         <!-- Horse position number with enhanced styling -->
         <div class="relative group">
           <div
             class="w-10 h-10 flex items-center justify-center text-lg font-bold mr-3 flex-shrink-0 rounded-lg shadow-lg transition-all duration-700 border-2 overflow-hidden"
-            :style="{ borderColor: horse.color }"
-          >
-            <div
-              class="absolute inset-0 opacity-60 rounded-lg"
-              :style="{ backgroundColor: horse.color }"
-            ></div>
+            :style="{ borderColor: horse.color }">
+            <div class="absolute inset-0 opacity-60 rounded-lg" :style="{ backgroundColor: horse.color }"></div>
             <span class="relative text-white font-extrabold">{{ index + 1 }}</span>
           </div>
           <!-- Pulsing effect when racing -->
-          <div
-            v-if="isRacing"
-            class="absolute inset-0 rounded-lg animate-ping"
-            :style="{ backgroundColor: horse.color, opacity: 0.2 }"
-          ></div>
+          <div v-if="isRacing" class="absolute inset-0 rounded-lg animate-ping"
+            :style="{ backgroundColor: horse.color, opacity: 0.2 }"></div>
         </div>
 
         <!-- Horse details with improved layout -->
@@ -112,10 +241,7 @@ const bgClass = computed(() => {
           <!-- Horse name with better typography -->
           <div class="font-bold text-base flex items-center">
             <span>{{ horse.name }}</span>
-            <span
-              class="ml-1.5 px-1.5 py-0.5 text-xs rounded-md opacity-70"
-              :style="{ backgroundColor: horse.color }"
-            >
+            <span class="ml-1.5 px-1.5 py-0.5 text-xs rounded-md opacity-70" :style="{ backgroundColor: horse.color }">
               #{{ horse.id }}
             </span>
           </div>
@@ -124,27 +250,18 @@ const bgClass = computed(() => {
           <div class="mt-1">
             <div class="flex items-center gap-2">
               <span class="text-xs text-gray-400">Condition</span>
-              <div
-                class="w-28 h-3 bg-gray-800/80 rounded-full overflow-hidden shadow-inner relative"
-              >
-                <div
-                  class="h-full rounded-full relative overflow-hidden"
-                  :style="{ width: `${horse.condition}%`, backgroundColor: horse.color }"
-                >
+              <div class="w-28 h-3 bg-gray-800/80 rounded-full overflow-hidden shadow-inner relative">
+                <div class="h-full rounded-full relative overflow-hidden"
+                  :style="{ width: `${horse.condition}%`, backgroundColor: horse.color }">
                   <!-- Shiny effect on condition bar -->
-                  <div
-                    class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-50"
-                  ></div>
+                  <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-50"></div>
                 </div>
 
                 <!-- Condition percentage indicator -->
-                <span
-                  class="absolute inset-0 text-[10px] flex items-center justify-center font-medium"
-                  :class="{
-                    'text-white': horse.condition < 40,
-                    'text-gray-200': horse.condition >= 40,
-                  }"
-                >
+                <span class="absolute inset-0 text-[10px] flex items-center justify-center font-medium" :class="{
+                  'text-white': horse.condition < 40,
+                  'text-gray-200': horse.condition >= 40,
+                }">
                   {{ horse.condition }}%
                 </span>
               </div>
@@ -157,9 +274,7 @@ const bgClass = computed(() => {
     <!-- Race track lane - redesigned with better visual cues -->
     <div class="flex-1 relative">
       <!-- Grid lines for distance markers with improved styling -->
-      <div
-        class="absolute inset-0 grid grid-cols-4 divide-x divide-gray-700/30 pointer-events-none"
-      >
+      <div class="absolute inset-0 grid grid-cols-4 divide-x divide-gray-700/30 pointer-events-none">
         <!-- Add subtle gradient to each column section -->
         <div v-for="n in 4" :key="n" class="relative h-full">
           <div class="absolute inset-0" :class="n % 2 === 0 ? 'bg-gray-800/10' : ''"></div>
@@ -167,29 +282,18 @@ const bgClass = computed(() => {
       </div>
 
       <!-- Horse position with enhanced animations and lane deviation -->
-      <div
-        class="absolute transition-all flex items-center z-10"
-        :class="{
-          'animate-[horse-gallop_0.4s_ease-in-out_infinite]': isRacing && hasRaceDuration,
-        }"
-        :style="{
-          left: isRacing && hasRaceDuration ? 'calc(100% - 80px)' : '12px',
-          top:
-            isRacing && hasRaceDuration
-              ? `calc(50% - 20px + ${verticalOffset}px)`
-              : 'calc(50% - 20px)',
-          transitionDuration: hasRaceDuration
-            ? `${getAdjustedDuration(raceDuration || 10)}s`
-            : '0s',
-          transitionTimingFunction: 'cubic-bezier(0.34, 1.1, 0.64, 1)',
-        }"
-      >
+      <div class="absolute flex items-center z-10" :class="{
+        'animate-[horse-gallop_0.4s_ease-in-out_infinite]': isRacing && hasRaceDuration && !hasFinished,
+      }" :style="{
+        left: `${horsePosition}px`,
+        top:
+          isRacing && hasRaceDuration
+            ? `calc(50% - 20px + ${verticalOffset}px)`
+            : 'calc(50% - 20px)',
+      }">
         <!-- Horse Avatar component -->
-        <HorseAvatar
-          :is-racing="isRacing"
-          :has-race-duration="hasRaceDuration"
-          :color="horse.color"
-        />
+        <HorseAvatar :is-racing="isRacing && !hasFinished" :has-race-duration="hasRaceDuration" :color="horse.color"
+          :has-finished="hasFinished" />
       </div>
     </div>
   </div>
@@ -197,10 +301,12 @@ const bgClass = computed(() => {
 
 <style scoped>
 @keyframes horse-gallop {
+
   0%,
   100% {
     transform: translateY(0) scale(1);
   }
+
   50% {
     transform: translateY(-4px) scale(1.05);
   }

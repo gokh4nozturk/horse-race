@@ -150,35 +150,9 @@ const startRace = () => {
     const adjustedMaxDuration = getAdjustedDuration(maxDuration)
     console.log('Adjusted max duration (with speed multiplier):', adjustedMaxDuration)
 
-    // Create an array to track horses that have finished
-    const finishedHorses = reactive(new Set<number>())
-
-    // Sort horses by their race time to determine finish order
-    const sortedHorses = [...props.horses]
-      .map((horse) => ({
-        id: horse.id,
-        time: raceDurations[horse.id],
-      }))
-      .sort((a, b) => a.time - b.time)
-
-    // Set up individual finish timers for each horse
-    sortedHorses.forEach((horse) => {
-      const adjustedTime = getAdjustedDuration(horse.time)
-
-      setTimeout(() => {
-        console.log(`Horse #${horse.id} reached the finish line!`)
-        toast.success(`Horse #${horse.id} reached the finish line!`)
-        finishedHorses.add(horse.id)
-
-        // If all horses have finished, emit race completed event immediately
-        if (finishedHorses.size === props.horses.length) {
-          console.log('All horses have finished the race')
-          isAnimating.value = false
-          emit('raceCompleted', raceError.value || undefined)
-          console.log('raceCompleted event emitted')
-        }
-      }, adjustedTime * 1000) // Convert to milliseconds
-    })
+    // Now we're using the event system instead of setTimeout for completion detection
+    // The actual race completion is handled by the handleHorseFinished method
+    console.log('Race setup complete, horses will move via animation')
   }, 50)
 }
 
@@ -263,29 +237,36 @@ onMounted(() => {
 const validHorses = computed(() => {
   return props.horses && props.horses.length > 0 ? props.horses : []
 })
+
+// Handle horse finished event
+const handleHorseFinished = (horseId: number) => {
+  console.log(`Horse #${horseId} finished the race`)
+  toast.success(`Horse #${horseId} finished the race`)
+
+  // Remove the finished horse from the raceDurations
+  delete raceDurations[horseId]
+
+  // Check if all horses have finished
+  if (Object.keys(raceDurations).length === 0) {
+    console.log('All horses have finished the race')
+    isAnimating.value = false
+    emit('raceCompleted', raceError.value || undefined)
+    console.log('raceCompleted event emitted')
+  }
+}
 </script>
 <template>
   <Card
-    class="overflow-hidden border-0 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white shadow-2xl relative"
-  >
+    class="overflow-hidden border-0 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white shadow-2xl relative">
     <!-- Race track header -->
     <CardHeader>
-      <RaceHeader
-        :round-id="currentRound?.id || 1"
-        :distance="currentRound?.distance || 1200"
-        :is-racing="isRacing"
-        :speed-multiplier="speedMultiplier"
-        :is-counting-down="isCountingDown"
-      />
+      <RaceHeader :round-id="currentRound?.id || 1" :distance="currentRound?.distance || 1200" :is-racing="isRacing"
+        :speed-multiplier="speedMultiplier" :is-counting-down="isCountingDown" />
     </CardHeader>
 
     <!-- Countdown timer -->
-    <CountdownTimer
-      ref="countdownRef"
-      :is-active="isRacing"
-      :speed-multiplier="speedMultiplier"
-      @complete="handleCountdownComplete"
-    />
+    <CountdownTimer ref="countdownRef" :is-active="isRacing" :speed-multiplier="speedMultiplier"
+      @complete="handleCountdownComplete" />
 
     <!-- Error message for race errors -->
     <div v-if="raceError" class="bg-red-900/80 text-white px-4 py-3 text-center font-semibold">
@@ -303,9 +284,7 @@ const validHorses = computed(() => {
       <!-- Track content with lanes -->
       <div class="relative">
         <!-- Racetrack background with 3D effect -->
-        <div
-          class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 opacity-40"
-        ></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 opacity-40"></div>
 
         <!-- Horse lanes -->
         <div class="px-0">
@@ -317,16 +296,10 @@ const validHorses = computed(() => {
           </div>
 
           <!-- Use the HorseLane component for each horse -->
-          <HorseLane
-            v-for="(horse, index) in validHorses"
-            :key="horse.id"
-            :horse="horse"
-            :index="index"
-            :is-racing="isRacing"
-            :vertical-offset="verticalOffsets[horse.id] || 0"
-            :race-duration="raceDurations[horse.id]"
-            :speed-multiplier="speedMultiplier"
-          />
+          <HorseLane v-for="(horse, index) in validHorses" :key="horse.id" :horse="horse" :index="index"
+            :is-racing="isRacing" :vertical-offset="verticalOffsets[horse.id] || 0"
+            :race-duration="raceDurations[horse.id]" :speed-multiplier="speedMultiplier"
+            @horse-finished="handleHorseFinished" />
         </div>
       </div>
     </CardContent>
@@ -335,10 +308,12 @@ const validHorses = computed(() => {
 
 <style scoped>
 @keyframes horse-gallop {
+
   0%,
   100% {
     transform: translateY(0) scale(1);
   }
+
   50% {
     transform: translateY(-4px) scale(1.05);
   }

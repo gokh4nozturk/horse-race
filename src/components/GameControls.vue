@@ -49,6 +49,8 @@ const onReset = () => {
       Next Round
     </Button>
 
-    <Button variant="destructive" @click="onReset" :disabled="isRacing">Reset</Button>
+    <Button variant="destructive" size="default" @click="onReset" :disabled="isRacing">
+      Reset
+    </Button>
   </div>
 </template>

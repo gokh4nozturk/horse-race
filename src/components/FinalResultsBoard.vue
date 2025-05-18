@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useResultsStore } from '@/stores/results'
 import { useHorsesStore } from '@/stores/horses'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardHeader, CardContent } from '@/components/ui/card'
 
 const resultsStore = useResultsStore()
 const horsesStore = useHorsesStore()
@@ -62,9 +62,10 @@ function formatTime(seconds: number): string {
 
 <template>
   <Card class="shadow-md">
-    <CardContent class="p-6">
-      <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Championship Final Results</h2>
-
+    <CardHeader>
+      <h2 class="text-2xl font-bold text-gray-900 text-center">Championship Final Results</h2>
+    </CardHeader>
+    <CardContent class="px-6 pb-6">
       <!-- Overall standings table -->
       <div class="overflow-x-auto mb-8">
         <table class="w-full border-collapse">
@@ -111,8 +112,10 @@ function formatTime(seconds: number): string {
             :key="roundResult.roundId"
             class="bg-gray-50 border border-gray-200"
           >
-            <CardContent class="p-4">
-              <h4 class="font-semibold text-lg mb-3">Round {{ roundResult.roundId }}</h4>
+            <CardHeader class="pb-2">
+              <h4 class="font-semibold text-lg">Round {{ roundResult.roundId }}</h4>
+            </CardHeader>
+            <CardContent>
               <table class="w-full">
                 <thead>
                   <tr class="border-b border-gray-300 text-sm">

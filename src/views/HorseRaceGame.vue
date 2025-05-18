@@ -10,6 +10,8 @@ import RaceTrack from '@/components/RaceTrack.vue'
 import ResultBoard from '@/components/ResultBoard.vue'
 import GameControls from '@/components/GameControls.vue'
 import FinalResultsBoard from '@/components/FinalResultsBoard.vue'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 // Store instances
 const horsesStore = useHorsesStore()
@@ -97,39 +99,37 @@ onMounted(() => {
 
     <main class="flex flex-col gap-6">
       <!-- Debug Panel -->
-      <div
-        class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 font-mono text-sm flex flex-wrap justify-between gap-4"
-      >
-        <div class="flex-1 min-w-[300px]">
-          <p class="my-1">currentRoundIndex: {{ raceStore.currentRoundIndex }}</p>
-          <p class="my-1">isRacing: {{ raceStore.isRacing }}</p>
-          <p class="my-1">isRoundCompleted: {{ raceStore.isRoundCompleted }}</p>
-          <p class="my-1">
-            canStart: {{ raceStore.schedule.length > 0 && !raceStore.isRoundCompleted }}
-          </p>
-          <p class="my-1">canNext: {{ raceStore.isRoundCompleted }}</p>
-          <p class="my-1">isLastRound: {{ raceStore.isLastRound }}</p>
-        </div>
+      <Card>
+        <CardContent class="p-4 flex flex-wrap justify-between gap-4">
+          <div class="flex-1 min-w-[300px] font-mono text-sm">
+            <p class="my-1">currentRoundIndex: {{ raceStore.currentRoundIndex }}</p>
+            <p class="my-1">isRacing: {{ raceStore.isRacing }}</p>
+            <p class="my-1">isRoundCompleted: {{ raceStore.isRoundCompleted }}</p>
+            <p class="my-1">
+              canStart: {{ raceStore.schedule.length > 0 && !raceStore.isRoundCompleted }}
+            </p>
+            <p class="my-1">canNext: {{ raceStore.isRoundCompleted }}</p>
+            <p class="my-1">isLastRound: {{ raceStore.isLastRound }}</p>
+          </div>
 
-        <div class="flex-1 min-w-[300px]">
-          <div class="flex flex-col gap-2">
-            <span class="font-medium text-gray-600">Animation Speed:</span>
-            <div class="flex gap-2">
-              <button
-                v-for="speed in speedOptions"
-                :key="speed"
-                class="bg-gray-200 rounded px-2 py-1 text-sm font-mono transition-colors hover:bg-gray-300"
-                :class="{
-                  'bg-blue-500 text-white hover:bg-blue-600': raceStore.speedMultiplier === speed,
-                }"
-                @click="handleSpeedChange(speed)"
-              >
-                {{ speed }}x
-              </button>
+          <div class="flex-1 min-w-[300px]">
+            <div class="flex flex-col gap-2">
+              <span class="font-medium text-gray-600">Animation Speed:</span>
+              <div class="flex gap-2">
+                <Button
+                  v-for="speed in speedOptions"
+                  :key="speed"
+                  :variant="raceStore.speedMultiplier === speed ? 'default' : 'outline'"
+                  size="sm"
+                  @click="handleSpeedChange(speed)"
+                >
+                  {{ speed }}x
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <!-- Controls -->
       <GameControls
@@ -181,16 +181,17 @@ onMounted(() => {
       </section>
 
       <!-- Game complete message -->
-      <section
-        v-if="raceStore.isAllRoundsCompleted"
-        class="text-center p-8 bg-green-50 rounded-lg border border-green-200"
-      >
-        <h2 class="text-2xl font-bold text-green-800 mb-2">Championship Complete!</h2>
-        <p class="text-green-700">
-          All rounds have been completed. You can see the final results above. Reset to start a new
-          championship.
-        </p>
-      </section>
+      <Card v-if="raceStore.isAllRoundsCompleted" class="border-green-200 bg-green-50">
+        <CardHeader>
+          <h2 class="text-2xl font-bold text-green-800">Championship Complete!</h2>
+        </CardHeader>
+        <CardContent>
+          <p class="text-green-700">
+            All rounds have been completed. You can see the final results above. Reset to start a
+            new championship.
+          </p>
+        </CardContent>
+      </Card>
     </main>
   </div>
 </template>

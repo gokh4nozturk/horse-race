@@ -4,7 +4,7 @@ import { useRaceStore } from '@/stores/race'
 import { useRaceEngine } from '@/composables/useRaceEngine'
 import { type Horse } from '@/stores/horses'
 import { cn } from '@/lib/utils'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardHeader, CardContent } from '@/components/ui/card'
 
 const props = defineProps<{
   horses: Horse[]
@@ -93,18 +93,17 @@ onMounted(() => {
 </script>
 <template>
   <Card class="overflow-hidden">
+    <CardHeader v-if="currentRound" class="pb-3 text-center">
+      <h3 class="text-xl font-semibold">Round {{ currentRound.id }}</h3>
+      <p class="text-sm text-gray-600">Distance: {{ currentRound.distance }}m</p>
+      <span
+        v-if="speedMultiplier > 1"
+        class="inline-block mt-1 text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full"
+      >
+        {{ speedMultiplier }}x Speed
+      </span>
+    </CardHeader>
     <CardContent class="p-6 bg-gray-50">
-      <div v-if="currentRound" class="mb-4 text-center">
-        <h3 class="text-xl font-semibold">Round {{ currentRound.id }}</h3>
-        <p class="text-sm text-gray-600 mt-1">Distance: {{ currentRound.distance }}m</p>
-        <span
-          v-if="speedMultiplier > 1"
-          class="inline-block mt-1 text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full"
-        >
-          {{ speedMultiplier }}x Speed
-        </span>
-      </div>
-
       <div class="relative py-4">
         <!-- Finish line -->
         <div
@@ -112,7 +111,7 @@ onMounted(() => {
         ></div>
 
         <!-- Horse lanes -->
-        <div v-for="horse in horses" :key="horse.id" class="flex mb-4 h-10">
+        <div v-for="horse in horses" :key="horse.id" class="flex mb-4 h-10 last:mb-0">
           <div class="w-24 flex-shrink-0 flex flex-col justify-center mr-4">
             <div class="text-xs text-gray-500">#{{ horse.id }}</div>
             <div class="font-semibold">{{ horse.name }}</div>

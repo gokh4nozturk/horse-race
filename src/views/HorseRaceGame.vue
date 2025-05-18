@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute, type RouteLocationNormalized } from 'vue-router'
 import { useHorsesStore } from '@/stores/horses'
 import { useRaceStore } from '@/stores/race'
 import { useResultsStore } from '@/stores/results'
 import { useRaceEngine } from '@/composables/useRaceEngine'
 
-// At kartları artık kullanılmıyor
-// import HorseCard from '@/components/HorseCard.vue'
 import RaceTrack from '@/components/RaceTrack.vue'
 import ResultBoard from '@/components/ResultBoard.vue'
 import GameControls from '@/components/GameControls.vue'
@@ -49,6 +47,11 @@ function handleGenerate() {
 
 function handleStart() {
   console.log('Start race clicked')
+
+  if (!raceStore.currentRound) {
+    console.error('No current round available, starting first round')
+    raceStore.currentRoundIndex = 0
+  }
 
   raceStore.isRacing = true
 
@@ -125,8 +128,8 @@ onMounted(() => {
 })
 
 // Watch for route changes
-watch(route.path, (newPath) => {
-  debugOpen.value = newPath === '/debug'
+watch(route, (newRoute: RouteLocationNormalized) => {
+  debugOpen.value = newRoute.path === '/debug'
 })
 </script>
 

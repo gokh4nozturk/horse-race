@@ -29,7 +29,7 @@ const emit = defineEmits<{
 }>()
 
 // Watch for speed multiplier changes and emit the new value
-watch(raceStore.speedMultiplier, (multiplier) => {
+watch(() => raceStore.speedMultiplier, (multiplier) => {
   emit('speed-change', multiplier)
 })
 

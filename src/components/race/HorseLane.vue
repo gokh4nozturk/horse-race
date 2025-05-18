@@ -48,6 +48,7 @@ const finishPosition = ref(0) // Will be calculated on mount
 const animationStartTime = ref(0)
 const animationFrameId = ref(0)
 const hasFinished = ref(false) // Track if horse has finished the race
+const horseAvatarWidth = ref(40) // Default avatar width
 
 // Create a reactive reference for finish position calculation
 const recalculateFinishPosition = () => {
@@ -61,7 +62,9 @@ const recalculateFinishPosition = () => {
     const finishPercentage = finishLinePercentage.value
 
     // Calculate the exact finish position based on the track width and finish line percentage
-    finishPosition.value = trackWidth
+    // Subtract the width of the horse avatar to ensure
+    // the horse's front touches the finish line exactly
+    finishPosition.value = trackWidth - horseAvatarWidth.value + 100
 
     console.log(`Horse #${props.horse.id} finish position set to:`, finishPosition.value, `(${finishPercentage}% of track width ${trackWidth}px)`)
   } else {

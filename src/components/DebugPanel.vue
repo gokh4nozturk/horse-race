@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useRaceStore } from '@/stores/race'
+import { useRouter, useRoute } from 'vue-router'
 
 import {
   Sheet,
@@ -12,35 +13,72 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { QUERY_PARAMS } from '@/router/constants'
 
 // Store instance
 const raceStore = useRaceStore()
+const router = useRouter()
+const route = useRoute()
 
-// Props for the debug panel
-defineProps<{
-  open: boolean
-  speedOptions: number[]
-}>()
+const open = ref(false)
+const speedMultiplier = ref('1')
+let isUpdatingFromRoute = false
 
-// Emits for speed multiplier changes
-const emit = defineEmits<{
-  'update:open': [open: boolean]
-  'speed-change': [multiplier: number]
-}>()
+// Initialize speed multiplier from route query if available
+onMounted(() => {
+  const speedParam = route.query[QUERY_PARAMS.SPEED]?.toString()
+  if (speedParam && ['1', '2', '3', '4', '5'].includes(speedParam)) {
+    speedMultiplier.value = speedParam
+    raceStore.setSpeedMultiplier(Number(speedParam))
+  }
 
-// Watch for speed multiplier changes and emit the new value
-watch(() => raceStore.speedMultiplier, (multiplier) => {
-  emit('speed-change', multiplier)
+  // Set debug panel state based on query parameter
+  open.value = route.query[QUERY_PARAMS.SHEET_NAME] === 'debug'
 })
 
-// Handle update open
-function handleUpdateOpen(open: boolean) {
-  emit('update:open', open)
+// Watch for speed multiplier changes and update store
+watch(speedMultiplier, (newMultiplier) => {
+  if (isUpdatingFromRoute) return
+
+  raceStore.setSpeedMultiplier(Number(newMultiplier))
+
+  // Update query parameter without changing the current path
+  const newQuery = { ...route.query, [QUERY_PARAMS.SPEED]: newMultiplier }
+  router.replace({ query: newQuery })
+    .catch(err => console.error('Router error:', err))
+})
+
+// Watch for query parameter changes to update debug panel state
+watch(() => route.query[QUERY_PARAMS.SHEET_NAME], (newSheetName) => {
+  open.value = newSheetName === 'debug'
+}, { immediate: true })
+
+// Watch for query parameter changes to update speed multiplier
+watch(() => route.query[QUERY_PARAMS.SPEED], (newSpeed) => {
+  if (newSpeed && ['1', '2', '3', '4', '5'].includes(newSpeed.toString())) {
+    isUpdatingFromRoute = true
+    speedMultiplier.value = newSpeed.toString()
+    isUpdatingFromRoute = false
+  }
+}, { immediate: true })
+
+function handleDebug(isOpen: boolean) {
+  // Update only the debug query parameter, preserving other query parameters
+  const newQuery = { ...route.query }
+
+  if (isOpen) {
+    newQuery[QUERY_PARAMS.SHEET_NAME] = 'debug'
+  } else {
+    delete newQuery[QUERY_PARAMS.SHEET_NAME]
+  }
+
+  router.replace({ query: newQuery })
+    .catch(err => console.error('Router navigation error:', err))
 }
 </script>
 
 <template>
-  <Sheet :open="open" @update:open="handleUpdateOpen">
+  <Sheet :open="open" @update:open="handleDebug">
     <SheetTrigger as-child>
       <Button variant="outline">Debug</Button>
     </SheetTrigger>
@@ -66,12 +104,12 @@ function handleUpdateOpen(open: boolean) {
 
         <div class="p-4 rounded-lg border flex items-center gap-2 justify-between">
           <h3 class="text-sm font-medium">Animation Speed</h3>
-          <ToggleGroup type="single" variant="outline" v-model="raceStore.speedMultiplier">
-            <ToggleGroupItem value="1" aria-label="Toggle bold"> 1x </ToggleGroupItem>
-            <ToggleGroupItem value="2" aria-label="Toggle bold"> 2x </ToggleGroupItem>
-            <ToggleGroupItem value="3" aria-label="Toggle bold"> 3x </ToggleGroupItem>
-            <ToggleGroupItem value="4" aria-label="Toggle bold"> 4x </ToggleGroupItem>
-            <ToggleGroupItem value="5" aria-label="Toggle bold"> 5x </ToggleGroupItem>
+          <ToggleGroup type="single" variant="outline" v-model="speedMultiplier">
+            <ToggleGroupItem value="1" aria-label="Toggle speed"> 1x </ToggleGroupItem>
+            <ToggleGroupItem value="2" aria-label="Toggle speed"> 2x </ToggleGroupItem>
+            <ToggleGroupItem value="3" aria-label="Toggle speed"> 3x </ToggleGroupItem>
+            <ToggleGroupItem value="4" aria-label="Toggle speed"> 4x </ToggleGroupItem>
+            <ToggleGroupItem value="5" aria-label="Toggle speed"> 5x </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </div>

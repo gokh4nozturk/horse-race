@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRouter, useRoute, type RouteLocationNormalized } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
 import { useHorsesStore } from '@/stores/horses'
 import { useRaceStore } from '@/stores/race'
 import { useResultsStore } from '@/stores/results'
@@ -21,16 +20,9 @@ const raceStore = useRaceStore()
 const resultsStore = useResultsStore()
 const raceEngine = useRaceEngine()
 
-const router = useRouter()
-const route = useRoute()
-
-const debugOpen = ref(false)
-
 // Track if app is initialized
 const isInitialized = ref(false)
 
-// Available speed multipliers
-const speedOptions = [1, 2, 3, 4, 5]
 
 // Current round results
 const currentResult = computed(() => {
@@ -115,18 +107,7 @@ function handleRaceCompleted() {
   )
 }
 
-function handleSpeedChange(multiplier: number) {
-  console.log(`Setting speed multiplier to ${multiplier}x`)
-  raceStore.setSpeedMultiplier(multiplier)
-}
 
-function handleDebug(open: boolean) {
-  if (open) {
-    router.replace('/debug')
-  } else {
-    router.replace('/')
-  }
-}
 
 // Initialize on mount to have horses and schedule ready
 onMounted(async () => {
@@ -160,10 +141,7 @@ onMounted(async () => {
   }, 100)
 })
 
-// Watch for route changes
-watch(route, (newRoute: RouteLocationNormalized) => {
-  debugOpen.value = newRoute.path === '/debug'
-})
+
 </script>
 
 <template>
@@ -183,8 +161,7 @@ watch(route, (newRoute: RouteLocationNormalized) => {
           <ModeToggle />
 
           <!-- Debug Panel -->
-          <DebugPanel v-model:open="debugOpen" :speed-options="speedOptions" @speed-change="handleSpeedChange"
-            @update:open="handleDebug" />
+          <DebugPanel />
         </div>
       </div>
     </header>

@@ -123,9 +123,7 @@ export const useRaceStore = defineStore('race', {
     },
 
     setSpeedMultiplier(multiplier: number) {
-      if (multiplier >= 1 && multiplier <= 10) {
-        this.speedMultiplier = multiplier
-      }
+      this.speedMultiplier = multiplier
     },
   },
 })

@@ -15,9 +15,9 @@ export function useRaceEngine() {
     const horse = horsesStore.getHorseById(horseId)
     if (!horse) return 999 // Fallback for invalid horse
 
-    // Base speed depends on condition (70-100)
+    // Base speed depends on condition (1-100)
     // Higher condition = lower time (faster)
-    const baseTimePerMeter = 0.03 - (horse.condition - 70) * 0.0008
+    const baseTimePerMeter = 0.05 - (horse.condition / 100) * 0.02
 
     // Add some randomness (±10%)
     const randomFactor = 0.9 + Math.random() * 0.2

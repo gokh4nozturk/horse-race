@@ -4,7 +4,7 @@ export interface Horse {
   id: number
   name: string
   color: string
-  condition: number // 0-100
+  condition: number // 1-100
 }
 
 export const useHorsesStore = defineStore('horses', {
@@ -24,7 +24,7 @@ export const useHorsesStore = defineStore('horses', {
           id: index + 1,
           name: generateHorseName(index),
           color: generateUniqueColor(index),
-          condition: Math.floor(Math.random() * 31) + 70, // 70-100 condition score
+          condition: Math.floor(Math.random() * 100) + 1, // 1-100 condition score
         }
       })
 

@@ -45,7 +45,10 @@ export const useRaceStore = defineStore('race', {
     generateSchedule() {
       const horsesStore = useHorsesStore()
 
-      // Generate 6 rounds with random distances and 10 random horses each
+      // Round distances as specified in requirements
+      const roundDistances = [1200, 1400, 1600, 1800, 2000, 2200]
+
+      // Generate 6 rounds with specified distances and 10 random horses each
       const rounds = Array.from({ length: 6 }, (_, index) => {
         const roundId = index + 1
 
@@ -55,8 +58,8 @@ export const useRaceStore = defineStore('race', {
           .slice(0, 10)
           .map((horse) => horse.id)
 
-        // Generate a distance between 1000-2000 meters
-        const distance = 1000 + Math.floor(Math.random() * 11) * 100
+        // Use the specified distance for this round
+        const distance = roundDistances[index]
 
         return {
           id: roundId,

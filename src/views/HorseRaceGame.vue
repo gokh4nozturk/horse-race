@@ -13,6 +13,15 @@ import FinalResultsBoard from '@/components/FinalResultsBoard.vue'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
+
 // Store instances
 const horsesStore = useHorsesStore()
 const raceStore = useRaceStore()
@@ -97,24 +106,34 @@ onMounted(() => {
       <h1 class="text-3xl font-bold text-gray-800">Horse Racing Championship</h1>
     </header>
 
-    <main class="flex flex-col gap-6">
+    <main class="flex flex-col gap-6 relative">
       <!-- Debug Panel -->
-      <Card>
-        <CardContent class="p-4 flex flex-wrap justify-between gap-4">
-          <div class="flex-1 min-w-[300px] font-mono text-sm">
-            <p class="my-1">currentRoundIndex: {{ raceStore.currentRoundIndex }}</p>
-            <p class="my-1">isRacing: {{ raceStore.isRacing }}</p>
-            <p class="my-1">isRoundCompleted: {{ raceStore.isRoundCompleted }}</p>
-            <p class="my-1">
-              canStart: {{ raceStore.schedule.length > 0 && !raceStore.isRoundCompleted }}
-            </p>
-            <p class="my-1">canNext: {{ raceStore.isRoundCompleted }}</p>
-            <p class="my-1">isLastRound: {{ raceStore.isLastRound }}</p>
-          </div>
+      <Sheet>
+        <SheetTrigger as-child class="absolute top-0 right-0 z-10">
+          <Button variant="outline">Debug</Button>
+        </SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Debug</SheetTitle>
+            <SheetDescription>
+              This is a debug panel. It will show you the current state of the game.
+            </SheetDescription>
+          </SheetHeader>
+          <div class="mt-6 space-y-4">
+            <div class="bg-gray-50 p-4 rounded-lg border">
+              <h3 class="text-sm font-medium mb-2">Game State</h3>
+              <div class="font-mono text-xs space-y-1.5">
+                <p>currentRoundIndex: {{ raceStore.currentRoundIndex }}</p>
+                <p>isRacing: {{ raceStore.isRacing }}</p>
+                <p>isRoundCompleted: {{ raceStore.isRoundCompleted }}</p>
+                <p>canStart: {{ raceStore.schedule.length > 0 && !raceStore.isRoundCompleted }}</p>
+                <p>canNext: {{ raceStore.isRoundCompleted }}</p>
+                <p>isLastRound: {{ raceStore.isLastRound }}</p>
+              </div>
+            </div>
 
-          <div class="flex-1 min-w-[300px]">
-            <div class="flex flex-col gap-2">
-              <span class="font-medium text-gray-600">Animation Speed:</span>
+            <div class="bg-gray-50 p-4 rounded-lg border">
+              <h3 class="text-sm font-medium mb-2">Animation Speed</h3>
               <div class="flex gap-2">
                 <Button
                   v-for="speed in speedOptions"
@@ -128,8 +147,8 @@ onMounted(() => {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </SheetContent>
+      </Sheet>
 
       <!-- Controls -->
       <GameControls

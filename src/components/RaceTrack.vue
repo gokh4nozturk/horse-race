@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 const props = defineProps<{
   horses: Horse[]
   isRacing: boolean
+  speedMultiplier: number
 }>()
 
 const emit = defineEmits<{
@@ -22,6 +23,11 @@ const raceDurations = reactive<Record<number, number>>({})
 
 // For debugging
 const isAnimating = ref(false)
+
+// Calculate the actual animation duration based on the speed multiplier
+const getAdjustedDuration = (duration: number): number => {
+  return duration / (props.speedMultiplier || 1)
+}
 
 // Calculate and set race durations when racing starts
 watch(
@@ -53,6 +59,10 @@ watch(
         const maxDuration = Math.max(...Object.values(raceDurations))
         console.log('Max duration:', maxDuration)
 
+        // Use adjusted duration based on speed multiplier
+        const adjustedMaxDuration = getAdjustedDuration(maxDuration)
+        console.log('Adjusted max duration (with speed multiplier):', adjustedMaxDuration)
+
         // Emit race completed after animation finishes
         setTimeout(
           () => {
@@ -61,8 +71,8 @@ watch(
             emit('raceCompleted')
             console.log('raceCompleted event emitted')
           },
-          maxDuration * 1000 + 500,
-        ) // Add a small buffer
+          adjustedMaxDuration * 1000 + 500 / (props.speedMultiplier || 1), // Add a small buffer, also adjusted
+        )
       }, 50)
     } else if (!isRacing) {
       // Reset positions when race is not active
@@ -84,6 +94,7 @@ onMounted(() => {
     <div v-if="currentRound" class="round-info">
       <h3>Round {{ currentRound.id }}</h3>
       <p>Distance: {{ currentRound.distance }}m</p>
+      <p v-if="speedMultiplier > 1" class="speed-indicator">{{ speedMultiplier }}x Speed</p>
     </div>
 
     <div class="race-track">
@@ -101,7 +112,7 @@ onMounted(() => {
             :class="{ 'is-racing': isRacing && raceDurations[horse.id] }"
             :style="{
               background: `linear-gradient(90deg, ${horse.color}22, transparent)`,
-              '--race-duration': `${raceDurations[horse.id] || 10}s`,
+              '--race-duration': `${getAdjustedDuration(raceDurations[horse.id] || 10)}s`,
             }"
           >
             <div
@@ -139,6 +150,16 @@ onMounted(() => {
   margin: 0.25rem 0 0;
   font-size: 0.875rem;
   color: #6b7280;
+}
+
+.speed-indicator {
+  margin-top: 0.25rem;
+  font-weight: 600;
+  color: #3b82f6;
+  background-color: #eff6ff;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  display: inline-block;
 }
 
 .race-track {

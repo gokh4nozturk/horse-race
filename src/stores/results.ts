@@ -25,6 +25,11 @@ export const useResultsStore = defineStore('results', {
       if (state.results.length === 0) return null
       return state.results[state.results.length - 1]
     },
+
+    // Get all round results sorted by round ID
+    getAllResults: (state) => {
+      return [...state.results].sort((a, b) => a.roundId - b.roundId)
+    },
   },
 
   actions: {

@@ -13,6 +13,7 @@ export const useRaceStore = defineStore('race', {
     currentRoundIndex: -1, // -1 means not started
     isRacing: false,
     isRoundCompleted: false,
+    speedMultiplier: 1, // Speed multiplier for animations: 1x (normal), 2x, 3x, 4x
   }),
 
   getters: {
@@ -107,6 +108,12 @@ export const useRaceStore = defineStore('race', {
       this.currentRoundIndex = -1
       this.isRacing = false
       this.isRoundCompleted = false
+    },
+
+    setSpeedMultiplier(multiplier: number) {
+      if (multiplier >= 1 && multiplier <= 10) {
+        this.speedMultiplier = multiplier
+      }
     },
   },
 })

@@ -33,7 +33,9 @@ const sortedResults = computed(() => {
       <h3 class="text-xl font-semibold text-center">Round {{ roundId }} Results</h3>
     </CardHeader>
     <CardContent>
-      <div v-if="!results.length" class="text-center text-gray-500 py-8">No results to display</div>
+      <div v-if="!results.length" class="text-center text-muted-foreground py-8">
+        No results to display
+      </div>
 
       <div v-else class="flex flex-col space-y-2">
         <div
@@ -41,10 +43,13 @@ const sortedResults = computed(() => {
           :key="result.horseId"
           class="flex items-center p-3 rounded-md"
           :class="{
-            'bg-amber-50 border-l-4 border-amber-500': result.place === 1,
-            'bg-gray-50 border-l-4 border-gray-400': result.place === 2,
-            'bg-red-50 border-l-4 border-red-700': result.place === 3,
-            'bg-gray-50': result.place > 3,
+            'bg-amber-50 dark:bg-amber-900 border-l-4 border-amber-500 dark:border-amber-500':
+              result.place === 1,
+            'bg-gray-50 dark:bg-gray-900 border-l-4 border-gray-400 dark:border-gray-400':
+              result.place === 2,
+            'bg-red-50 dark:bg-red-900 border-l-4 border-red-700 dark:border-red-700':
+              result.place === 3,
+            'bg-gray-50 dark:bg-gray-900 dark:border-gray-900': result.place > 3,
           }"
         >
           <div class="font-semibold text-xl w-8 text-center">{{ result.place }}</div>

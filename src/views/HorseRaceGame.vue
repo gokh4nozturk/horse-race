@@ -114,7 +114,7 @@ watch(route.path, (newPath) => {
 <template>
   <div class="max-w-5xl mx-auto p-4">
     <header class="mb-8 text-center">
-      <h1 class="text-3xl font-bold text-gray-800">Horse Racing Championship</h1>
+      <h1 class="text-3xl font-bold">Horse Racing Championship</h1>
     </header>
 
     <main class="flex flex-col gap-6 relative">

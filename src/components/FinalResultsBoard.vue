@@ -63,27 +63,27 @@ function formatTime(seconds: number): string {
 <template>
   <Card class="shadow-md">
     <CardHeader>
-      <h2 class="text-2xl font-bold text-gray-900 text-center">Championship Final Results</h2>
+      <h2 class="text-2xl font-bold text-center">Championship Final Results</h2>
     </CardHeader>
     <CardContent class="px-6 pb-6">
       <!-- Overall standings table -->
       <div class="overflow-x-auto mb-8">
         <table class="w-full border-collapse">
           <thead>
-            <tr class="bg-gray-50">
-              <th class="px-4 py-3 text-left font-semibold text-gray-600">Position</th>
-              <th class="px-4 py-3 text-left font-semibold text-gray-600">Horse</th>
-              <th class="px-4 py-3 text-left font-semibold text-gray-600">Total Points</th>
-              <th class="px-4 py-3 text-left font-semibold text-gray-600">Races</th>
+            <tr class="">
+              <th class="px-4 py-3 text-left font-semibold">Position</th>
+              <th class="px-4 py-3 text-left font-semibold">Horse</th>
+              <th class="px-4 py-3 text-left font-semibold">Total Points</th>
+              <th class="px-4 py-3 text-left font-semibold">Races</th>
             </tr>
           </thead>
           <tbody>
             <tr
               v-for="(standing, index) in overallStandings"
               :key="standing.horseId"
-              class="border-b border-gray-200"
+              class="border-b"
             >
-              <td class="px-4 py-3 font-semibold text-gray-900 text-center">{{ index + 1 }}</td>
+              <td class="px-4 py-3 font-semibold text-center">{{ index + 1 }}</td>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
                   <div
@@ -95,7 +95,7 @@ function formatTime(seconds: number): string {
                   >
                 </div>
               </td>
-              <td class="px-4 py-3 font-semibold text-gray-900">{{ standing.totalPoints }}</td>
+              <td class="px-4 py-3 font-semibold">{{ standing.totalPoints }}</td>
               <td class="px-4 py-3">{{ standing.totalRaces }}</td>
             </tr>
           </tbody>
@@ -104,31 +104,27 @@ function formatTime(seconds: number): string {
 
       <!-- Individual round results -->
       <div>
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">Round Results</h3>
+        <h3 class="text-xl font-semibold mb-4">Round Results</h3>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card
-            v-for="roundResult in allResults"
-            :key="roundResult.roundId"
-            class="bg-gray-50 border border-gray-200"
-          >
+          <Card v-for="roundResult in allResults" :key="roundResult.roundId" class="border">
             <CardHeader class="pb-2">
               <h4 class="font-semibold text-lg">Round {{ roundResult.roundId }}</h4>
             </CardHeader>
             <CardContent>
               <table class="w-full">
                 <thead>
-                  <tr class="border-b border-gray-300 text-sm">
-                    <th class="pb-2 font-medium text-gray-600 text-left">Pos</th>
-                    <th class="pb-2 font-medium text-gray-600 text-left">Horse</th>
-                    <th class="pb-2 font-medium text-gray-600 text-left">Time</th>
+                  <tr class="border-b text-sm">
+                    <th class="pb-2 font-medium text-left">Pos</th>
+                    <th class="pb-2 font-medium text-left">Horse</th>
+                    <th class="pb-2 font-medium text-left">Time</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
                     v-for="result in roundResult.results.slice(0, 3)"
                     :key="result.horseId"
-                    class="border-b border-gray-200 last:border-0"
+                    class="border-b last:border-0"
                   >
                     <td class="py-2 font-semibold">{{ result.place }}</td>
                     <td class="py-2">

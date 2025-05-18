@@ -38,7 +38,7 @@ const onReset = () => {
 </script>
 
 <template>
-  <div class="flex flex-wrap gap-2 mb-4">
+  <div class="flex flex-wrap gap-2">
     <Button variant="default" @click="onGenerate" :disabled="isRacing"> Generate Race </Button>
 
     <Button variant="secondary" @click="onStart" :disabled="!canStart || isRacing">

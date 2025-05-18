@@ -103,7 +103,7 @@ onMounted(() => {
         {{ speedMultiplier }}x Speed
       </span>
     </CardHeader>
-    <CardContent class="p-6 bg-gray-50">
+    <CardContent>
       <div class="relative py-4">
         <!-- Finish line -->
         <div

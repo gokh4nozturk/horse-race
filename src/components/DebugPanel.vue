@@ -52,7 +52,7 @@ function handleUpdateOpen(open: boolean) {
         </SheetDescription>
       </SheetHeader>
       <div class="mt-6 space-y-4">
-        <div class="bg-gray-50 p-4 rounded-lg border">
+        <div class="p-4 rounded-lg border">
           <h3 class="text-sm font-medium mb-2">Game State</h3>
           <div class="font-mono text-xs space-y-1.5">
             <p>currentRoundIndex: {{ raceStore.currentRoundIndex }}</p>
@@ -64,7 +64,7 @@ function handleUpdateOpen(open: boolean) {
           </div>
         </div>
 
-        <div class="bg-gray-50 p-4 rounded-lg border flex items-center gap-2 justify-between">
+        <div class="p-4 rounded-lg border flex items-center gap-2 justify-between">
           <h3 class="text-sm font-medium">Animation Speed</h3>
           <ToggleGroup type="single" variant="outline" v-model="raceStore.speedMultiplier">
             <ToggleGroupItem value="1" aria-label="Toggle bold"> 1x </ToggleGroupItem>

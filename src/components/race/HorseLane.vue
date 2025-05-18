@@ -54,14 +54,10 @@ const recalculateFinishPosition = () => {
   const trackElement = document.querySelector('.flex-1.relative')
   if (trackElement) {
     const trackWidth = trackElement.clientWidth
-    console.log('Track element width:', trackWidth)
-
-    // Calculate finish position based on the finish line percentage
-    const finishPercentage = finishLinePercentage.value
 
     finishPosition.value = trackWidth + 120
 
-    console.log(`Horse #${props.horse.id} finish position set to:`, finishPosition.value, `(${finishPercentage}% of track width ${trackWidth}px)`)
+    console.log(`Horse #${props.horse.id} finish position set to:`, finishPosition.value, `(${finishLinePercentage.value}% of track width ${trackWidth}px)`)
   } else {
     console.error('Could not find track element')
     // Fallback to a reasonable default if element not found

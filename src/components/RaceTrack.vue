@@ -123,6 +123,7 @@ const startRace = () => {
 
   // Get the race distance
   const raceDistance = currentRound.value.distance
+  console.log(`Race distance: ${raceDistance}m for ${props.horses.length} horses`)
 
   // Reset any previous error
   raceError.value = null
@@ -132,15 +133,22 @@ const startRace = () => {
 
   // Force a DOM update before starting animations
   setTimeout(() => {
+    // Clear previous race durations
+    Object.keys(raceDurations).forEach((key) => {
+      delete raceDurations[Number(key)]
+    })
+
+    console.log('Calculating race times for horses:', props.horses.map(h => h.id).join(', '))
+
     // Calculate race time for each horse
     props.horses.forEach((horse) => {
       const time = raceEngine.calculateRaceTime(horse.id, raceDistance)
-      console.log(`Horse #${horse.id} time:`, time)
+      console.log(`Horse #${horse.id} time: ${time}s with condition: ${horse.condition}%`)
       raceDurations[horse.id] = time
     })
 
     // Log all race durations
-    console.log('All race durations:', { ...raceDurations })
+    console.log('All race durations:', Object.entries(raceDurations).map(([id, time]) => `Horse #${id}: ${time}s`).join(', '))
 
     // Find the slowest horse's time to know when race is complete
     const maxDuration = Math.max(...Object.values(raceDurations))
@@ -246,12 +254,21 @@ const handleHorseFinished = (horseId: number) => {
   // Remove the finished horse from the raceDurations
   delete raceDurations[horseId]
 
+  // Log remaining horses
+  const remainingHorses = Object.keys(raceDurations).map(id => Number(id))
+  console.log(`Remaining horses: ${remainingHorses.length > 0 ? remainingHorses.join(', ') : 'None'}`)
+
   // Check if all horses have finished
   if (Object.keys(raceDurations).length === 0) {
     console.log('All horses have finished the race')
     isAnimating.value = false
-    emit('raceCompleted', raceError.value || undefined)
-    console.log('raceCompleted event emitted')
+
+    // Small delay before emitting the raceCompleted event
+    // This gives the UI time to update and show all horses at the finish line
+    setTimeout(() => {
+      console.log('Emitting raceCompleted event')
+      emit('raceCompleted', raceError.value || undefined)
+    }, 500)
   }
 }
 </script>

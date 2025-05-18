@@ -2,6 +2,7 @@
 import { computed, ref, onMounted, watch, onUnmounted } from 'vue'
 import { type Horse } from '@/stores/horses'
 import HorseAvatar from './HorseAvatar.vue'
+import { useRaceStore } from '@/stores/race'
 
 const props = defineProps<{
   horse: Horse
@@ -13,6 +14,18 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['horseFinished'])
+
+// Add race distance context from the parent
+const raceStore = useRaceStore()
+const MAX_RACE_DISTANCE = 2200 // The longest race (same as in RaceTrack)
+
+// Calculate the finish line position based on current race distance
+const finishLinePercentage = computed(() => {
+  if (raceStore.currentRound) {
+    return (raceStore.currentRound.distance / MAX_RACE_DISTANCE) * 100
+  }
+  return 100 // Default to 100% if no current round
+})
 
 // Helper to adjust duration based on speed multiplier
 const getAdjustedDuration = (duration: number): number => {
@@ -36,22 +49,34 @@ const animationStartTime = ref(0)
 const animationFrameId = ref(0)
 const hasFinished = ref(false) // Track if horse has finished the race
 
+// Create a reactive reference for finish position calculation
+const recalculateFinishPosition = () => {
+  // Get the parent element directly using this component's template
+  const trackElement = document.querySelector('.flex-1.relative')
+  if (trackElement) {
+    const trackWidth = trackElement.clientWidth
+    console.log('Track element width:', trackWidth)
+
+    // Calculate finish position based on the finish line percentage
+    const finishPercentage = finishLinePercentage.value
+
+    // Calculate the exact finish position based on the track width and finish line percentage
+    finishPosition.value = trackWidth
+
+    console.log(`Horse #${props.horse.id} finish position set to:`, finishPosition.value, `(${finishPercentage}% of track width ${trackWidth}px)`)
+  } else {
+    console.error('Could not find track element')
+    // Fallback to a reasonable default if element not found
+    finishPosition.value = 800
+  }
+}
+
 // Calculate target DOM element width on mount
 onMounted(() => {
   // Use a small delay to ensure DOM is fully rendered
   setTimeout(() => {
-    // Get the parent element directly using this component's template
-    const trackElement = document.querySelector('.flex-1.relative')
-    if (trackElement) {
-      console.log('Track element width:', trackElement.clientWidth)
-      // Set finish position to align with the finish line (10px width) plus a small offset for visual alignment
-      finishPosition.value = trackElement.clientWidth - 20
-      console.log(`Horse #${props.horse.id} finish position set to:`, finishPosition.value)
-    } else {
-      console.error('Could not find track element')
-      // Fallback to a reasonable default if element not found
-      finishPosition.value = 800
-    }
+    // Calculate finish position
+    recalculateFinishPosition()
 
     // Start animation if racing is already active
     if (props.isRacing && hasRaceDuration.value) {
@@ -61,6 +86,9 @@ onMounted(() => {
       animationFrameId.value = requestAnimationFrame(animateHorse)
     }
   }, 100)
+
+  // Add window resize listener to handle browser resizing
+  window.addEventListener('resize', recalculateFinishPosition)
 })
 
 // Frame-based animation function
@@ -80,47 +108,66 @@ const animateHorse = (timestamp: number) => {
   // Update position with easing
   // Using cubic-bezier-like easing
   const eased = cubicBezier(0.34, 1.1, 0.64, 1, progress)
-  const newPosition = 12 + finishPosition.value * eased
 
-  // Only log on significant changes to avoid console spam
-  if (Math.abs(horsePosition.value - newPosition) > 10) {
-    console.log(`Horse #${props.horse.id} position: ${Math.round(newPosition)}px, progress: ${(progress * 100).toFixed(1)}%`)
+  // Calculate new position based on animation progress
+  // Starting point (12px) + (distance to finish * progress)
+  let newPosition = 12 + ((finishPosition.value - 12) * eased)
+
+  // Ensure horse never exceeds finish position during regular animation
+  // Add a strict check to prevent going past the finish line
+  if (newPosition >= finishPosition.value) {
+    newPosition = finishPosition.value
+    // If we've reached the exact finish position and we're not marked as finished
+    if (!hasFinished.value) {
+      hasFinished.value = true
+      console.log(`Horse #${props.horse.id} reached EXACT finish line at ${finishPosition.value}px`)
+      // Emit finish event after a small delay to ensure visuals are updated
+      setTimeout(() => {
+        emit('horseFinished', props.horse.id)
+      }, 100)
+    }
   }
 
+  // Log position for debugging key horses
+  if (props.horse.id < 3 && Math.abs(horsePosition.value - newPosition) > 10) {
+    console.log(`Horse #${props.horse.id} position: ${Math.round(newPosition)}px, progress: ${(progress * 100).toFixed(1)}%, finish line at: ${finishPosition.value}px`)
+  }
+
+  // Update horse position
   horsePosition.value = newPosition
 
-  // Check if horse has finished - only when the horse is very close to the finish line
-  // Distance from current position to finish line
-  const distanceToFinish = finishPosition.value - horsePosition.value;
+  // Check if horse has finished - ONLY WHEN HORSE HAS ACTUALLY REACHED THE FINISH LINE
+  // This calculation needs to be very precise to ensure visual accuracy
+  const distanceToFinish = finishPosition.value - horsePosition.value
 
-  // Use a precise threshold for finish detection
-  if (distanceToFinish <= 2 && !hasFinished.value) {
-    hasFinished.value = true
-    console.log(`Horse #${props.horse.id} reached finish line at position: ${Math.round(horsePosition.value)}px of ${finishPosition.value}px`)
+  // Only finish when the horse has truly reached the finish line position
+  // This ensures visual alignment with the finish line graphics
+  if (distanceToFinish <= 0 && !hasFinished.value) {
+    console.log(`Horse #${props.horse.id} reached finish line at position: ${Math.round(horsePosition.value)}px (finish at ${finishPosition.value}px)`)
 
-    // Force the horse exactly to the finish line for clean visual alignment
+    // Force the horse to the exact finish position for perfect visual alignment
     horsePosition.value = finishPosition.value
+    hasFinished.value = true
 
-    // Emit finish event
-    emit('horseFinished', props.horse.id)
+    // Emit finish event after a small delay to ensure visuals are updated
+    setTimeout(() => {
+      emit('horseFinished', props.horse.id)
+    }, 100)
 
-    // Cancel the animation since this horse is done
-    if (animationFrameId.value) {
-      cancelAnimationFrame(animationFrameId.value)
-      animationFrameId.value = 0
-    }
-
+    // Continue animation but stop updating position
+    // This keeps the horse visible at the finish line
+    animationFrameId.value = requestAnimationFrame(animateHorse)
     return
   }
 
-  // Continue animation if not finished
+  // Continue animation if not finished and still racing
   if (progress < 1 && props.isRacing) {
     animationFrameId.value = requestAnimationFrame(animateHorse)
   } else if (progress >= 1 && !hasFinished.value) {
-    // Ensure the horse makes it to the finish line
+    // Force finishing exactly at the line when animation completes
+    console.log(`Horse #${props.horse.id} animation completed (progress=${progress}) - forcing position to ${finishPosition.value}px`)
     horsePosition.value = finishPosition.value
     hasFinished.value = true
-    console.log(`Horse #${props.horse.id} animation BACKUP finish - FINISH EVENT EMITTED at position: ${Math.round(horsePosition.value)}px`)
     emit('horseFinished', props.horse.id)
   }
 }
@@ -174,16 +221,7 @@ watch(
       // Ensure we have a valid finish position
       if (finishPosition.value <= 0) {
         console.log('Recalculating finish position')
-        const trackElement = document.querySelector('.flex-1.relative')
-        if (trackElement) {
-          console.log('Track element width:', trackElement.clientWidth)
-          // Set finish position to align with the finish line
-          finishPosition.value = trackElement.clientWidth - 20
-          console.log(`Horse #${props.horse.id} finish position recalculated to:`, finishPosition.value)
-        } else {
-          console.warn('Using fallback track width')
-          finishPosition.value = 800
-        }
+        recalculateFinishPosition()
       }
 
       // Start a new animation
@@ -218,14 +256,7 @@ watch(
 
       // Ensure we have a valid finish position
       if (finishPosition.value <= 0) {
-        const trackElement = document.querySelector('.flex-1.relative')
-        if (trackElement) {
-          // Set finish position to align with the finish line
-          finishPosition.value = trackElement.clientWidth - 20
-          console.log(`Horse #${props.horse.id} finish position set in duration watcher:`, finishPosition.value)
-        } else {
-          finishPosition.value = 800
-        }
+        recalculateFinishPosition()
       }
 
       // Start animation
@@ -234,8 +265,23 @@ watch(
   }
 )
 
+// Add watch for race distance changes via finishLinePercentage
+watch(
+  () => finishLinePercentage.value,
+  (newPercentage) => {
+    console.log(`Horse #${props.horse.id} finish line percentage changed to ${newPercentage.toFixed(2)}%`)
+
+    // Recalculate finish position when percentage changes
+    recalculateFinishPosition()
+  }
+)
+
 // Clean up animation on component unmount
 onUnmounted(() => {
+  // Clean up window resize listener
+  window.removeEventListener('resize', recalculateFinishPosition)
+
+  // Clean up animation on component unmount
   if (animationFrameId.value) {
     cancelAnimationFrame(animationFrameId.value)
     animationFrameId.value = 0

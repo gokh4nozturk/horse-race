@@ -48,12 +48,30 @@ function handleGenerate() {
 function handleStart() {
   console.log('Start race clicked')
 
-  if (!raceStore.currentRound) {
-    console.error('No current round available, starting first round')
+  // Make sure we have a valid schedule and current round
+  if (raceStore.schedule.length === 0) {
+    console.error('No race schedule available, generating one first')
+    raceEngine.initialize()
+
+    // Set currentRoundIndex to 0 after initialization if needed
+    if (raceStore.currentRoundIndex === -1) {
+      raceStore.currentRoundIndex = 0
+    }
+  } else if (raceStore.currentRoundIndex === -1) {
+    // If we have a schedule but no current round, set to first round
+    console.warn('No current round selected, starting with first round')
     raceStore.currentRoundIndex = 0
   }
 
-  raceStore.isRacing = true
+  // Check if we now have a valid current round
+  const currentRound = raceStore.currentRound
+  if (currentRound) {
+    console.log(`Starting round ${currentRound.id} with ${currentRound.distance}m distance`)
+    raceStore.isRacing = true
+  } else {
+    console.error('Failed to set current round, cannot start race')
+    return
+  }
 
   console.log('Start button clicked, isRacing set to true - countdown should start now')
 }
@@ -111,18 +129,33 @@ function handleDebug(open: boolean) {
 }
 
 // Initialize on mount to have horses and schedule ready
-onMounted(() => {
+onMounted(async () => {
   console.log('HorseRaceGame component mounted')
+
+  // Initialize race engine and ensure schedule is generated
   raceEngine.initialize()
+
+  // Ensure currentRoundIndex is set to 0 after initialization
+  if (raceStore.schedule.length > 0 && raceStore.currentRoundIndex === -1) {
+    console.log('Setting currentRoundIndex to 0 to prepare first round')
+    raceStore.currentRoundIndex = 0
+  }
+
+  // Short delay to ensure store state is updated before continuing
+  await new Promise(resolve => setTimeout(resolve, 10))
+
+  const currentRoundId = raceStore.currentRound?.id || 'None'
 
   setTimeout(() => {
     isInitialized.value = true
     console.log(
-      'Game initialized with',
+      'Game fully initialized with',
       horsesStore.horses.length,
       'horses and',
       raceStore.schedule.length,
       'rounds',
+      'Current round:',
+      currentRoundId
     )
   }, 100)
 })
@@ -134,35 +167,24 @@ watch(route, (newRoute: RouteLocationNormalized) => {
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto p-4">
+  <div class=" p-4">
     <header class="mb-8 text-center flex flex-col gap-4">
       <h1 class="text-3xl font-bold">Horse Racing Championship</h1>
 
       <!-- Toolbar -->
       <div class="flex justify-between items-center">
         <!-- Controls -->
-        <GameControls
-          :current-round-index="raceStore.currentRoundIndex"
-          :is-racing="raceStore.isRacing"
+        <GameControls :current-round-index="raceStore.currentRoundIndex" :is-racing="raceStore.isRacing"
           :can-start="raceStore.schedule.length > 0 && !raceStore.isRoundCompleted"
-          :can-next="raceStore.isRoundCompleted"
-          :is-last-round="raceStore.isLastRound"
-          @generate="handleGenerate"
-          @start="handleStart"
-          @next-round="handleNextRound"
-          @reset="handleReset"
-        />
+          :can-next="raceStore.isRoundCompleted" :is-last-round="raceStore.isLastRound" @generate="handleGenerate"
+          @start="handleStart" @next-round="handleNextRound" @reset="handleReset" />
 
         <div class="flex gap-2">
           <ModeToggle />
 
           <!-- Debug Panel -->
-          <DebugPanel
-            v-model:open="debugOpen"
-            :speed-options="speedOptions"
-            @speed-change="handleSpeedChange"
-            @update:open="handleDebug"
-          />
+          <DebugPanel v-model:open="debugOpen" :speed-options="speedOptions" @speed-change="handleSpeedChange"
+            @update:open="handleDebug" />
         </div>
       </div>
     </header>
@@ -172,20 +194,13 @@ watch(route, (newRoute: RouteLocationNormalized) => {
 
       <!-- Section: Race Track -->
       <section v-if="raceStore.schedule.length > 0" class="mb-6">
-        <RaceTrack
-          :horses="raceStore.horsesInCurrentRound"
-          :is-racing="raceStore.isRacing"
-          :speed-multiplier="raceStore.speedMultiplier"
-          @race-completed="handleRaceCompleted"
-          @countdown-complete="handleCountdownComplete"
-        />
+        <RaceTrack :horses="raceStore.horsesInCurrentRound" :is-racing="raceStore.isRacing"
+          :speed-multiplier="Number(raceStore.speedMultiplier)" @race-completed="handleRaceCompleted"
+          @countdown-complete="handleCountdownComplete" />
       </section>
 
       <!-- Section: Current Round Results -->
-      <section
-        v-if="raceStore.isRoundCompleted && currentResult && !raceStore.isAllRoundsCompleted"
-        class="mb-6"
-      >
+      <section v-if="raceStore.isRoundCompleted && currentResult && !raceStore.isAllRoundsCompleted" class="mb-6">
         <ResultBoard :round-id="raceStore.currentRound?.id || 0" :results="currentResult.results" />
       </section>
 

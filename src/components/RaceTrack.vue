@@ -29,7 +29,13 @@ const isCountingDown = ref(false)
 
 const raceStore = useRaceStore()
 const raceEngine = useRaceEngine()
-const currentRound = computed(() => raceStore.currentRound)
+const currentRound = computed(() => {
+  // If no current round, log a warning
+  if (!raceStore.currentRound) {
+    console.warn('RaceTrack: No current round available')
+  }
+  return raceStore.currentRound
+})
 
 // Store calculated race durations for each horse
 const raceDurations = reactive<Record<number, number>>({})
@@ -53,6 +59,26 @@ const positionChanges = reactive<
 // For debugging
 const isAnimating = ref(false)
 const raceError = ref<string | null>(null)
+
+// Add maxRaceDistance to determine the longest track
+const MAX_RACE_DISTANCE = 2200 // The longest race distance in our schedule
+
+// Compute the finish line position as a percentage of max track length
+const finishLinePosition = computed(() => {
+  if (currentRound.value) {
+    // Calculate percentage based on the current round distance vs max distance
+    const percentage = (currentRound.value.distance / MAX_RACE_DISTANCE) * 100
+    console.log(`Current race distance: ${currentRound.value.distance}m, finish line position: ${percentage.toFixed(2)}%`)
+    return percentage
+  }
+  console.log('No current round, defaulting finish line to 100%')
+  return 100 // Default to 100% if no current round
+})
+
+// Current actual race distance
+const currentRaceDistance = computed(() => {
+  return currentRound.value?.distance || MAX_RACE_DISTANCE
+})
 
 // Calculate the actual animation duration based on the speed multiplier
 const getAdjustedDuration = (duration: number): number => {
@@ -282,8 +308,7 @@ const handleHorseFinished = (horseId: number) => {
     </CardHeader>
 
     <!-- Countdown timer -->
-    <CountdownTimer ref="countdownRef" :is-active="isRacing" :speed-multiplier="speedMultiplier"
-      @complete="handleCountdownComplete" />
+    <CountdownTimer ref="countdownRef" :is-active="isRacing" @complete="handleCountdownComplete" />
 
     <!-- Error message for race errors -->
     <div v-if="raceError" class="bg-red-900/80 text-white px-4 py-3 text-center font-semibold">
@@ -293,10 +318,10 @@ const handleHorseFinished = (horseId: number) => {
     <!-- Race track content -->
     <CardContent class="p-0 relative">
       <!-- Distance markers at top -->
-      <DistanceMarkers :distance="currentRound?.distance || 1200" :is-racing="isRacing" />
+      <DistanceMarkers :max-distance="MAX_RACE_DISTANCE" :is-racing="isRacing" />
 
       <!-- Finish line -->
-      <FinishLine />
+      <FinishLine :position-percentage="finishLinePosition" :round-distance="currentRaceDistance" />
 
       <!-- Track content with lanes -->
       <div class="relative">

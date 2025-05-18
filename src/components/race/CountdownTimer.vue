@@ -6,7 +6,6 @@ const COUNT_DOWN_VALUE = 3
 
 const props = defineProps<{
   isActive: boolean
-  speedMultiplier: number
 }>()
 
 const emit = defineEmits<{
@@ -34,7 +33,7 @@ const startCountdown = () => {
       console.log('COUNTDOWN COMPLETED')
       emit('complete')
     }
-  }, 1000 / props.speedMultiplier)
+  }, 1000)
 }
 
 // Watch for isActive change to start countdown
@@ -62,13 +61,9 @@ defineExpose({
 
 <template>
   <!-- Countdown overlay -->
-  <div
-    v-if="countdown !== null"
-    class="fixed inset-0 flex items-center justify-center z-[999] bg-black/60 backdrop-blur-sm"
-  >
-    <div
-      class="bg-black/80 rounded-full w-48 h-48 flex items-center justify-center border-4 border-white/20"
-    >
+  <div v-if="countdown !== null"
+    class="fixed inset-0 flex items-center justify-center z-[999] bg-black/60 backdrop-blur-sm">
+    <div class="bg-black/80 rounded-full w-48 h-48 flex items-center justify-center border-4 border-white/20">
       <NumberFlow :value="countdown" class="text-8xl font-bold text-white" />
     </div>
   </div>

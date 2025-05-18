@@ -4,6 +4,8 @@ import { useRaceStore } from '@/stores/race'
 import { useRaceEngine } from '@/composables/useRaceEngine'
 import { type Horse } from '@/stores/horses'
 import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
+
 const props = defineProps<{
   horses: Horse[]
   isRacing: boolean
@@ -90,151 +92,55 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="race-track-container">
-    <div v-if="currentRound" class="round-info">
-      <h3>Round {{ currentRound.id }}</h3>
-      <p>Distance: {{ currentRound.distance }}m</p>
-      <p v-if="speedMultiplier > 1" class="speed-indicator">{{ speedMultiplier }}x Speed</p>
-    </div>
+  <Card class="overflow-hidden">
+    <CardContent class="p-6 bg-gray-50">
+      <div v-if="currentRound" class="mb-4 text-center">
+        <h3 class="text-xl font-semibold">Round {{ currentRound.id }}</h3>
+        <p class="text-sm text-gray-600 mt-1">Distance: {{ currentRound.distance }}m</p>
+        <span
+          v-if="speedMultiplier > 1"
+          class="inline-block mt-1 text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full"
+        >
+          {{ speedMultiplier }}x Speed
+        </span>
+      </div>
 
-    <div class="race-track">
-      <div class="finish-line"></div>
+      <div class="relative py-4">
+        <!-- Finish line -->
+        <div
+          class="absolute h-full w-0.5 bg-black top-0 right-[50px] z-10 before:content-['🏁'] before:absolute before:top-[-20px] before:left-[-8px] before:text-xl"
+        ></div>
 
-      <div v-for="horse in horses" :key="horse.id" class="horse-lane">
-        <div class="lane-info">
-          <div class="lane-number">#{{ horse.id }}</div>
-          <div class="lane-name">{{ horse.name }}</div>
-        </div>
+        <!-- Horse lanes -->
+        <div v-for="horse in horses" :key="horse.id" class="flex mb-4 h-10">
+          <div class="w-24 flex-shrink-0 flex flex-col justify-center mr-4">
+            <div class="text-xs text-gray-500">#{{ horse.id }}</div>
+            <div class="font-semibold">{{ horse.name }}</div>
+          </div>
 
-        <div class="lane-track">
-          <div
-            class="horse-racer"
-            :class="{ 'is-racing': isRacing && raceDurations[horse.id] }"
-            :style="{
-              background: `linear-gradient(90deg, ${horse.color}22, transparent)`,
-              '--race-duration': `${getAdjustedDuration(raceDurations[horse.id] || 10)}s`,
-            }"
-          >
+          <div class="flex-1 relative border-b border-dashed border-gray-300 h-full">
             <div
-              :class="cn('horse-emoji', { 'rotate-y-180': isRacing && raceDurations[horse.id] })"
+              class="absolute left-0 top-0 w-10 flex items-center h-full transition-all"
+              :class="{ 'left-[calc(100%-40px)]': isRacing && raceDurations[horse.id] }"
+              :style="{
+                background: `linear-gradient(90deg, ${horse.color}22, transparent)`,
+                transitionDuration: `${getAdjustedDuration(raceDurations[horse.id] || 10)}s`,
+                transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+              }"
             >
-              🐎
+              <div
+                :class="
+                  cn('text-2xl relative z-10', {
+                    'scale-x-[-1]': isRacing && raceDurations[horse.id],
+                  })
+                "
+              >
+                🐎
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </CardContent>
+  </Card>
 </template>
-
-<style scoped>
-.race-track-container {
-  width: 100%;
-  padding: 1rem;
-  background-color: #f3f4f6;
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-
-.round-info {
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.round-info h3 {
-  font-size: 1.25rem;
-  margin: 0;
-}
-
-.round-info p {
-  margin: 0.25rem 0 0;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.speed-indicator {
-  margin-top: 0.25rem;
-  font-weight: 600;
-  color: #3b82f6;
-  background-color: #eff6ff;
-  padding: 0.125rem 0.5rem;
-  border-radius: 9999px;
-  display: inline-block;
-}
-
-.race-track {
-  position: relative;
-  width: 100%;
-  padding: 1rem 0;
-}
-
-.finish-line {
-  position: absolute;
-  height: 100%;
-  width: 2px;
-  background-color: #000;
-  top: 0;
-  right: 50px;
-  z-index: 1;
-}
-
-.finish-line::before {
-  content: '🏁';
-  position: absolute;
-  top: -20px;
-  left: -8px;
-  font-size: 1.25rem;
-}
-
-.horse-lane {
-  display: flex;
-  margin-bottom: 1rem;
-  height: 40px;
-}
-
-.lane-info {
-  width: 100px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-right: 1rem;
-}
-
-.lane-number {
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-
-.lane-name {
-  font-weight: 600;
-}
-
-.lane-track {
-  flex: 1;
-  position: relative;
-  border-bottom: 1px dashed #d1d5db;
-  height: 100%;
-}
-
-.horse-racer {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 40px;
-  display: flex;
-  align-items: center;
-  height: 100%;
-  transition: left var(--race-duration) cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.horse-racer.is-racing {
-  left: calc(100% - 40px);
-}
-
-.horse-emoji {
-  font-size: 1.75rem;
-  position: relative;
-  z-index: 2;
-}
-</style>

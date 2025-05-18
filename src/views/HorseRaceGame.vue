@@ -90,32 +90,38 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="horse-race-game">
-    <header class="game-header">
-      <h1 class="game-title">Horse Racing Championship</h1>
+  <div class="max-w-5xl mx-auto p-4">
+    <header class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-gray-800">Horse Racing Championship</h1>
     </header>
 
-    <main class="game-content">
+    <main class="flex flex-col gap-6">
       <!-- Debug Panel -->
-      <div class="debug-panel">
-        <div class="debug-info">
-          <p>currentRoundIndex: {{ raceStore.currentRoundIndex }}</p>
-          <p>isRacing: {{ raceStore.isRacing }}</p>
-          <p>isRoundCompleted: {{ raceStore.isRoundCompleted }}</p>
-          <p>canStart: {{ raceStore.schedule.length > 0 && !raceStore.isRoundCompleted }}</p>
-          <p>canNext: {{ raceStore.isRoundCompleted }}</p>
-          <p>isLastRound: {{ raceStore.isLastRound }}</p>
+      <div
+        class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 font-mono text-sm flex flex-wrap justify-between gap-4"
+      >
+        <div class="flex-1 min-w-[300px]">
+          <p class="my-1">currentRoundIndex: {{ raceStore.currentRoundIndex }}</p>
+          <p class="my-1">isRacing: {{ raceStore.isRacing }}</p>
+          <p class="my-1">isRoundCompleted: {{ raceStore.isRoundCompleted }}</p>
+          <p class="my-1">
+            canStart: {{ raceStore.schedule.length > 0 && !raceStore.isRoundCompleted }}
+          </p>
+          <p class="my-1">canNext: {{ raceStore.isRoundCompleted }}</p>
+          <p class="my-1">isLastRound: {{ raceStore.isLastRound }}</p>
         </div>
 
-        <div class="debug-controls">
-          <div class="speed-controls">
-            <span class="speed-label">Animation Speed:</span>
-            <div class="speed-buttons">
+        <div class="flex-1 min-w-[300px]">
+          <div class="flex flex-col gap-2">
+            <span class="font-medium text-gray-600">Animation Speed:</span>
+            <div class="flex gap-2">
               <button
                 v-for="speed in speedOptions"
                 :key="speed"
-                class="speed-button"
-                :class="{ active: raceStore.speedMultiplier === speed }"
+                class="bg-gray-200 rounded px-2 py-1 text-sm font-mono transition-colors hover:bg-gray-300"
+                :class="{
+                  'bg-blue-500 text-white hover:bg-blue-600': raceStore.speedMultiplier === speed,
+                }"
                 @click="handleSpeedChange(speed)"
               >
                 {{ speed }}x
@@ -143,16 +149,16 @@ onMounted(() => {
         v-if="
           !raceStore.isRacing && horsesStore.horses.length > 0 && !raceStore.isAllRoundsCompleted
         "
-        class="section"
+        class="mb-6"
       >
-        <h2 class="section-title">Horses</h2>
-        <div class="horses-container">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Horses</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <HorseCard v-for="horse in horsesStore.horses" :key="horse.id" :horse="horse" />
         </div>
       </section>
 
       <!-- Section: Race Track -->
-      <section v-if="raceStore.isRacing || raceStore.isRoundCompleted" class="section">
+      <section v-if="raceStore.isRacing || raceStore.isRoundCompleted" class="mb-6">
         <RaceTrack
           :horses="raceStore.horsesInCurrentRound"
           :is-racing="raceStore.isRacing"
@@ -164,20 +170,23 @@ onMounted(() => {
       <!-- Section: Current Round Results -->
       <section
         v-if="raceStore.isRoundCompleted && currentResult && !raceStore.isAllRoundsCompleted"
-        class="section"
+        class="mb-6"
       >
         <ResultBoard :round-id="raceStore.currentRound?.id || 0" :results="currentResult.results" />
       </section>
 
       <!-- Section: Final Results (all rounds completed) -->
-      <section v-if="raceStore.isAllRoundsCompleted" class="section">
+      <section v-if="raceStore.isAllRoundsCompleted" class="mb-6">
         <FinalResultsBoard />
       </section>
 
       <!-- Game complete message -->
-      <section v-if="raceStore.isAllRoundsCompleted" class="section game-complete">
-        <h2>Championship Complete!</h2>
-        <p>
+      <section
+        v-if="raceStore.isAllRoundsCompleted"
+        class="text-center p-8 bg-green-50 rounded-lg border border-green-200"
+      >
+        <h2 class="text-2xl font-bold text-green-800 mb-2">Championship Complete!</h2>
+        <p class="text-green-700">
           All rounds have been completed. You can see the final results above. Reset to start a new
           championship.
         </p>

@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useHorsesStore } from '@/stores/horses'
 import { type HorseResult } from '@/stores/results'
+import { Card } from '@/components/ui/card'
 
 const props = defineProps<{
   roundId: number
@@ -27,120 +28,41 @@ const sortedResults = computed(() => {
 })
 </script>
 <template>
-  <div class="result-board">
-    <h3 class="board-title">Round {{ roundId }} Results</h3>
+  <Card>
+    <div class="p-6">
+      <h3 class="text-xl font-semibold text-center mb-4">Round {{ roundId }} Results</h3>
 
-    <div class="results-container">
-      <div v-if="!results.length" class="no-results">No results to display</div>
+      <div>
+        <div v-if="!results.length" class="text-center text-gray-500 py-8">
+          No results to display
+        </div>
 
-      <div v-else class="results-list">
-        <div
-          v-for="result in sortedResults"
-          :key="result.horseId"
-          class="result-item"
-          :class="{
-            'first-place': result.place === 1,
-            'second-place': result.place === 2,
-            'third-place': result.place === 3,
-          }"
-        >
-          <div class="place">{{ result.place }}</div>
-          <div class="horse-info">
-            <div
-              class="horse-color"
-              :style="{ backgroundColor: getHorseColor(result.horseId) }"
-            ></div>
-            <div class="horse-name">{{ getHorseName(result.horseId) }}</div>
+        <div v-else class="flex flex-col space-y-2">
+          <div
+            v-for="result in sortedResults"
+            :key="result.horseId"
+            class="flex items-center p-3 rounded-md"
+            :class="{
+              'bg-amber-50 border-l-4 border-amber-500': result.place === 1,
+              'bg-gray-50 border-l-4 border-gray-400': result.place === 2,
+              'bg-red-50 border-l-4 border-red-700': result.place === 3,
+              'bg-gray-50': result.place > 3,
+            }"
+          >
+            <div class="font-semibold text-xl w-8 text-center">{{ result.place }}</div>
+            <div class="flex items-center flex-1 ml-2">
+              <div
+                class="w-4 h-4 rounded-full mr-2"
+                :style="{ backgroundColor: getHorseColor(result.horseId) }"
+              ></div>
+              <div class="font-medium">{{ getHorseName(result.horseId) }}</div>
+            </div>
+            <div class="font-semibold text-gray-600 tabular-nums">
+              {{ result.time.toFixed(2) }}s
+            </div>
           </div>
-          <div class="time">{{ result.time.toFixed(2) }}s</div>
         </div>
       </div>
     </div>
-  </div>
+  </Card>
 </template>
-
-<style scoped>
-.result-board {
-  width: 100%;
-  padding: 1rem;
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.board-title {
-  font-size: 1.25rem;
-  margin: 0 0 1rem;
-  text-align: center;
-}
-
-.results-container {
-  width: 100%;
-}
-
-.no-results {
-  text-align: center;
-  color: #6b7280;
-  padding: 2rem 0;
-}
-
-.results-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.result-item {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  background-color: #f9fafb;
-}
-
-.first-place {
-  background-color: #fef3c7;
-  border-left: 4px solid #f59e0b;
-}
-
-.second-place {
-  background-color: #f1f5f9;
-  border-left: 4px solid #94a3b8;
-}
-
-.third-place {
-  background-color: #fee2e2;
-  border-left: 4px solid #b91c1c;
-}
-
-.place {
-  font-weight: 600;
-  font-size: 1.25rem;
-  width: 2rem;
-  text-align: center;
-}
-
-.horse-info {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  margin-left: 0.5rem;
-}
-
-.horse-color {
-  width: 1rem;
-  height: 1rem;
-  border-radius: 9999px;
-  margin-right: 0.5rem;
-}
-
-.horse-name {
-  font-weight: 500;
-}
-
-.time {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  color: #4b5563;
-}
-</style>

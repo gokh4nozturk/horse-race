@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" name="ButtonElement">
 import type { HTMLAttributes } from 'vue'
 import { cn } from '@/lib/utils'
 import { Primitive, type PrimitiveProps } from 'reka-ui'

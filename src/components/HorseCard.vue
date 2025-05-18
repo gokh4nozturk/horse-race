@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { type Horse } from '@/stores/horses'
+import { Card, CardContent } from '@/components/ui/card'
 
 // Props
 defineProps<{
@@ -7,82 +8,29 @@ defineProps<{
 }>()
 </script>
 <template>
-  <div class="horse-card" :style="{ '--horse-color': horse.color }">
-    <div class="horse-avatar" :style="{ backgroundColor: horse.color }">
-      <div class="horse-icon">🐎</div>
-    </div>
-    <div class="horse-info">
-      <div class="horse-name">{{ horse.name }}</div>
-      <div class="horse-condition">
-        <div class="condition-bar">
-          <div class="condition-fill" :style="{ width: `${horse.condition}%` }"></div>
-        </div>
-        <span class="condition-text">{{ horse.condition }}</span>
+  <Card
+    class="overflow-hidden transition-all hover:shadow-md border-l-4"
+    :style="{ 'border-left-color': horse.color }"
+  >
+    <CardContent class="p-4 flex items-center">
+      <div
+        class="flex items-center justify-center w-10 h-10 rounded-full mr-3 flex-shrink-0"
+        :style="{ backgroundColor: horse.color }"
+      >
+        <div class="text-xl">🐎</div>
       </div>
-    </div>
-  </div>
+      <div class="flex-1">
+        <div class="font-medium text-base mb-1">{{ horse.name }}</div>
+        <div class="flex items-center">
+          <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden mr-2">
+            <div
+              class="h-full rounded-full"
+              :style="{ width: `${horse.condition}%`, backgroundColor: horse.color }"
+            ></div>
+          </div>
+          <span class="text-xs text-gray-500 font-medium">{{ horse.condition }}</span>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
 </template>
-
-<style scoped>
-.horse-card {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid var(--horse-color);
-  margin-bottom: 0.5rem;
-}
-
-.horse-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 0.75rem;
-  flex-shrink: 0;
-}
-
-.horse-icon {
-  font-size: 1.5rem;
-}
-
-.horse-info {
-  flex: 1;
-}
-
-.horse-name {
-  font-weight: 600;
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.horse-condition {
-  display: flex;
-  align-items: center;
-}
-
-.condition-bar {
-  flex: 1;
-  height: 0.5rem;
-  background-color: #e5e7eb;
-  border-radius: 9999px;
-  overflow: hidden;
-  margin-right: 0.5rem;
-}
-
-.condition-fill {
-  height: 100%;
-  background-color: var(--horse-color);
-  border-radius: 9999px;
-}
-
-.condition-text {
-  font-size: 0.75rem;
-  color: #6b7280;
-  font-weight: 500;
-}
-</style>

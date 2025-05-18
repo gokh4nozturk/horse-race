@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useResultsStore } from '@/stores/results'
 import { useHorsesStore } from '@/stores/horses'
+import { Card, CardContent } from '@/components/ui/card'
 
 const resultsStore = useResultsStore()
 const horsesStore = useHorsesStore()
@@ -60,174 +61,95 @@ function formatTime(seconds: number): string {
 </script>
 
 <template>
-  <div class="final-results-board">
-    <h2 class="final-results-title">Championship Final Results</h2>
+  <Card class="shadow-md">
+    <CardContent class="p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Championship Final Results</h2>
 
-    <!-- Overall standings table -->
-    <div class="standings-table-container">
-      <table class="standings-table">
-        <thead>
-          <tr>
-            <th>Position</th>
-            <th>Horse</th>
-            <th>Total Points</th>
-            <th>Races</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(standing, index) in overallStandings" :key="standing.horseId">
-            <td class="position">{{ index + 1 }}</td>
-            <td class="horse-info">
-              <div
-                class="horse-color-indicator"
-                :style="{ backgroundColor: standing.horseColor }"
-              ></div>
-              <span>{{ standing.horseName }} (#{{ standing.horseId }})</span>
-            </td>
-            <td class="points">{{ standing.totalPoints }}</td>
-            <td>{{ standing.totalRaces }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Individual round results -->
-    <div class="round-results">
-      <h3 class="rounds-title">Round Results</h3>
-
-      <div class="round-cards">
-        <div v-for="roundResult in allResults" :key="roundResult.roundId" class="round-card">
-          <h4 class="round-title">Round {{ roundResult.roundId }}</h4>
-          <table class="round-results-table">
-            <thead>
-              <tr>
-                <th>Position</th>
-                <th>Horse</th>
-                <th>Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="result in roundResult.results.slice(0, 3)" :key="result.horseId">
-                <td class="position">{{ result.place }}</td>
-                <td class="horse-info">
+      <!-- Overall standings table -->
+      <div class="overflow-x-auto mb-8">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-4 py-3 text-left font-semibold text-gray-600">Position</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-600">Horse</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-600">Total Points</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-600">Races</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(standing, index) in overallStandings"
+              :key="standing.horseId"
+              class="border-b border-gray-200"
+            >
+              <td class="px-4 py-3 font-semibold text-gray-900 text-center">{{ index + 1 }}</td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
                   <div
-                    class="horse-color-indicator"
-                    :style="{
-                      backgroundColor: horsesStore.getHorseById(result.horseId)?.color || '#ccc',
-                    }"
+                    class="w-4 h-4 rounded-full flex-shrink-0"
+                    :style="{ backgroundColor: standing.horseColor }"
                   ></div>
-                  <span>{{ horsesStore.getHorseById(result.horseId)?.name || 'Unknown' }}</span>
-                </td>
-                <td>{{ formatTime(result.time) }}</td>
-              </tr>
-            </tbody>
-          </table>
+                  <span class="font-medium"
+                    >{{ standing.horseName }} (#{{ standing.horseId }})</span
+                  >
+                </div>
+              </td>
+              <td class="px-4 py-3 font-semibold text-gray-900">{{ standing.totalPoints }}</td>
+              <td class="px-4 py-3">{{ standing.totalRaces }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Individual round results -->
+      <div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Round Results</h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Card
+            v-for="roundResult in allResults"
+            :key="roundResult.roundId"
+            class="bg-gray-50 border border-gray-200"
+          >
+            <CardContent class="p-4">
+              <h4 class="font-semibold text-lg mb-3">Round {{ roundResult.roundId }}</h4>
+              <table class="w-full">
+                <thead>
+                  <tr class="border-b border-gray-300 text-sm">
+                    <th class="pb-2 font-medium text-gray-600 text-left">Pos</th>
+                    <th class="pb-2 font-medium text-gray-600 text-left">Horse</th>
+                    <th class="pb-2 font-medium text-gray-600 text-left">Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="result in roundResult.results.slice(0, 3)"
+                    :key="result.horseId"
+                    class="border-b border-gray-200 last:border-0"
+                  >
+                    <td class="py-2 font-semibold">{{ result.place }}</td>
+                    <td class="py-2">
+                      <div class="flex items-center">
+                        <div
+                          class="w-3 h-3 rounded-full mr-2"
+                          :style="{
+                            backgroundColor:
+                              horsesStore.getHorseById(result.horseId)?.color || '#ccc',
+                          }"
+                        ></div>
+                        <span class="text-sm">
+                          {{ horsesStore.getHorseById(result.horseId)?.name || 'Unknown' }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="py-2 text-sm tabular-nums">{{ formatTime(result.time) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </div>
-  </div>
+    </CardContent>
+  </Card>
 </template>
-
-<style scoped>
-.final-results-board {
-  background-color: white;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.final-results-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #111827;
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.standings-table-container {
-  margin-bottom: 2rem;
-  overflow-x: auto;
-}
-
-.standings-table,
-.round-results-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.standings-table th,
-.standings-table td,
-.round-results-table th,
-.round-results-table td {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.standings-table th,
-.round-results-table th {
-  background-color: #f9fafb;
-  font-weight: 600;
-  color: #4b5563;
-}
-
-.position {
-  font-weight: 600;
-  color: #111827;
-  text-align: center;
-}
-
-.horse-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.horse-color-indicator {
-  width: 1rem;
-  height: 1rem;
-  border-radius: 9999px;
-  flex-shrink: 0;
-}
-
-.points {
-  font-weight: 600;
-  color: #111827;
-}
-
-.rounds-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #374151;
-  margin: 1.5rem 0 1rem;
-}
-
-.round-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-}
-
-.round-card {
-  background-color: #f9fafb;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  border: 1px solid #e5e7eb;
-}
-
-.round-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 0.75rem;
-  color: #374151;
-}
-
-@media (max-width: 640px) {
-  .round-cards {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

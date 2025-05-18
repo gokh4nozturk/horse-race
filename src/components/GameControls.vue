@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Button } from '@/components/ui/button'
+
 defineProps<{
   currentRoundIndex: number
   isRacing: boolean
@@ -36,84 +38,17 @@ const onReset = () => {
 </script>
 
 <template>
-  <div class="controls">
-    <button class="button button-primary" @click="onGenerate" :disabled="isRacing">
-      Generate Race
-    </button>
+  <div class="flex flex-wrap gap-2 mb-4">
+    <Button variant="default" @click="onGenerate" :disabled="isRacing"> Generate Race </Button>
 
-    <button class="button button-success" @click="onStart" :disabled="!canStart || isRacing">
+    <Button variant="secondary" @click="onStart" :disabled="!canStart || isRacing">
       {{ currentRoundIndex < 0 ? 'Start Race' : 'Start Round' }}
-    </button>
+    </Button>
 
-    <button
-      class="button button-secondary"
-      @click="onNextRound"
-      :disabled="!canNext || isRacing || isLastRound"
-    >
+    <Button variant="outline" @click="onNextRound" :disabled="!canNext || isRacing || isLastRound">
       Next Round
-    </button>
+    </Button>
 
-    <button class="button button-danger" @click="onReset" :disabled="isRacing">Reset</button>
+    <Button variant="destructive" @click="onReset" :disabled="isRacing">Reset</Button>
   </div>
 </template>
-
-<style scoped>
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition:
-    background-color 0.2s,
-    opacity 0.2s;
-}
-
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.button-primary {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.button-primary:hover:not(:disabled) {
-  background-color: #2563eb;
-}
-
-.button-success {
-  background-color: #10b981;
-  color: white;
-}
-
-.button-success:hover:not(:disabled) {
-  background-color: #059669;
-}
-
-.button-secondary {
-  background-color: #6b7280;
-  color: white;
-}
-
-.button-secondary:hover:not(:disabled) {
-  background-color: #4b5563;
-}
-
-.button-danger {
-  background-color: #ef4444;
-  color: white;
-}
-
-.button-danger:hover:not(:disabled) {
-  background-color: #dc2626;
-}
-</style>

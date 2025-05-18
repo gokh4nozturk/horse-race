@@ -47,7 +47,7 @@ const sortedResults = computed(() => {
 
       <div v-else>
         <!-- Podium display for top 3 -->
-        <div class="flex justify-center p-6 pb-2">
+        <div class="flex justify-center p-6 pb-2 pt-32">
           <div class="flex items-end gap-1 h-36">
             <!-- Second place -->
             <div v-if="sortedResults.length > 1" class="flex flex-col items-center">
@@ -81,7 +81,7 @@ const sortedResults = computed(() => {
                 }"
               >
                 <span class="text-4xl">🐎</span>
-                <div class="absolute -top-4 -right-4 text-3xl">👑</div>
+                <div class="absolute -top-8 right-5 text-3xl">🏆</div>
               </div>
               <div class="text-sm font-bold">{{ getHorseName(sortedResults[0].horseId) }}</div>
               <div class="font-mono text-xs text-amber-300 font-semibold">

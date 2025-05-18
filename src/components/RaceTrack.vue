@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, reactive, watch, onMounted } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import { useRaceStore } from '@/stores/race'
 import { useRaceEngine } from '@/composables/useRaceEngine'
 import { type Horse } from '@/stores/horses'
@@ -60,26 +60,6 @@ const positionChanges = reactive<
 const isAnimating = ref(false)
 const raceError = ref<string | null>(null)
 
-// Add maxRaceDistance to determine the longest track
-const MAX_RACE_DISTANCE = 2200 // The longest race distance in our schedule
-
-// Compute the finish line position as a percentage of max track length
-const finishLinePosition = computed(() => {
-  if (currentRound.value) {
-    // Calculate percentage based on the current round distance vs max distance
-    const percentage = (currentRound.value.distance / MAX_RACE_DISTANCE) * 100
-    console.log(`Current race distance: ${currentRound.value.distance}m, finish line position: ${percentage.toFixed(2)}%`)
-    return percentage
-  }
-  console.log('No current round, defaulting finish line to 100%')
-  return 100 // Default to 100% if no current round
-})
-
-// Current actual race distance
-const currentRaceDistance = computed(() => {
-  return currentRound.value?.distance || MAX_RACE_DISTANCE
-})
-
 // Calculate the actual animation duration based on the speed multiplier
 const getAdjustedDuration = (duration: number): number => {
   return duration / (props.speedMultiplier || 1)
@@ -127,6 +107,31 @@ watch(
     if (newValue) {
       console.log('Current round is now available:', newValue.id)
       raceError.value = null
+    }
+  },
+  { immediate: true },
+)
+
+// Watch for isRacing change to initialize race
+watch(
+  () => props.isRacing,
+  (isRacing) => {
+    console.log('RaceTrack - isRacing changed to:', isRacing, 'horses:', props.horses.length)
+
+    if (isRacing) {
+      console.log('Reset positions when starting a new race')
+      // Reset positions when starting a new race
+      Object.keys(raceDurations).forEach((key) => {
+        delete raceDurations[Number(key)]
+      })
+
+      // Reset vertical offsets
+      Object.keys(verticalOffsets).forEach((key) => {
+        verticalOffsets[Number(key)] = 0
+      })
+
+      // Set isCountingDown from component to true to prevent animation starting too early
+      isCountingDown.value = true
     }
   },
   { immediate: true },
@@ -237,36 +242,6 @@ const initializePositionChanges = () => {
   }
 }
 
-// Watch for isRacing change to initialize race
-watch(
-  () => props.isRacing,
-  (isRacing) => {
-    console.log('RaceTrack - isRacing changed to:', isRacing, 'horses:', props.horses.length)
-
-    if (isRacing) {
-      console.log('Reset positions when starting a new race')
-      // Reset positions when starting a new race
-      Object.keys(raceDurations).forEach((key) => {
-        delete raceDurations[Number(key)]
-      })
-
-      // Reset vertical offsets
-      Object.keys(verticalOffsets).forEach((key) => {
-        verticalOffsets[Number(key)] = 0
-      })
-
-      // Set isCountingDown from component to true to prevent animation starting too early
-      isCountingDown.value = true
-    }
-  },
-  { immediate: true },
-)
-
-// Force recalculation of horse positions on component mount
-onMounted(() => {
-  console.log('RaceTrack mounted, horses:', props.horses.length)
-})
-
 // Ensure horses list is valid and non-empty
 const validHorses = computed(() => {
   return props.horses && props.horses.length > 0 ? props.horses : []
@@ -318,10 +293,10 @@ const handleHorseFinished = (horseId: number) => {
     <!-- Race track content -->
     <CardContent class="p-0 relative">
       <!-- Distance markers at top -->
-      <DistanceMarkers :max-distance="MAX_RACE_DISTANCE" :is-racing="isRacing" />
+      <DistanceMarkers :max-distance="raceStore.currentRound?.distance || 0" :is-racing="isRacing" />
 
       <!-- Finish line -->
-      <FinishLine :position-percentage="finishLinePosition" :round-distance="currentRaceDistance" />
+      <FinishLine />
 
       <!-- Track content with lanes -->
       <div class="relative">

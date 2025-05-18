@@ -295,13 +295,12 @@ onUnmounted(() => {
 <template>
   <div class="flex h-20 relative overflow-hidden transition-all duration-500" :class="[bgClass, { 'h-16': isRacing }]">
     <!-- Lane marker -->
-    <div class="absolute inset-y-0 left-0 w-1 transition-colors duration-300" :style="{ backgroundColor: horse.color }">
-    </div>
+    <div class="absolute inset-y-0 left-0 w-1 transition-colors duration-300"
+      :style="{ backgroundColor: horse.color }" />
 
     <!-- Lane background with subtle track texture -->
     <div
-      class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0wIDBoNDB2MUgweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]">
-    </div>
+      class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0wIDBoNDB2MUgweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]" />
 
     <!-- Collapsible horse info area -->
     <div
@@ -350,7 +349,8 @@ onUnmounted(() => {
           <!-- Horse name with better typography -->
           <div class="font-bold text-base flex items-center">
             <span>{{ horse.name }}</span>
-            <span class="ml-1.5 px-1.5 py-0.5 text-xs rounded-md opacity-70" :style="{ backgroundColor: horse.color }">
+            <span class="ml-1.5 px-1.5 py-0.5 text-xs rounded-md text-neutral-700"
+              :style="{ backgroundColor: horse.color }">
               #{{ horse.id }}
             </span>
           </div>

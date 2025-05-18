@@ -17,12 +17,11 @@ const emit = defineEmits(['horseFinished'])
 
 // Add race distance context from the parent
 const raceStore = useRaceStore()
-const MAX_RACE_DISTANCE = 2200 // The longest race (same as in RaceTrack)
 
 // Calculate the finish line position based on current race distance
 const finishLinePercentage = computed(() => {
   if (raceStore.currentRound) {
-    return (raceStore.currentRound.distance / MAX_RACE_DISTANCE) * 100
+    return raceStore.currentRound.distance
   }
   return 100 // Default to 100% if no current round
 })
@@ -48,7 +47,6 @@ const finishPosition = ref(0) // Will be calculated on mount
 const animationStartTime = ref(0)
 const animationFrameId = ref(0)
 const hasFinished = ref(false) // Track if horse has finished the race
-const horseAvatarWidth = ref(40) // Default avatar width
 
 // Create a reactive reference for finish position calculation
 const recalculateFinishPosition = () => {
@@ -61,10 +59,7 @@ const recalculateFinishPosition = () => {
     // Calculate finish position based on the finish line percentage
     const finishPercentage = finishLinePercentage.value
 
-    // Calculate the exact finish position based on the track width and finish line percentage
-    // Subtract the width of the horse avatar to ensure
-    // the horse's front touches the finish line exactly
-    finishPosition.value = trackWidth - horseAvatarWidth.value + 100
+    finishPosition.value = trackWidth + 120
 
     console.log(`Horse #${props.horse.id} finish position set to:`, finishPosition.value, `(${finishPercentage}% of track width ${trackWidth}px)`)
   } else {

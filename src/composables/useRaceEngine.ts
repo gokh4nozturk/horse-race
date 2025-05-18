@@ -74,9 +74,19 @@ export function useRaceEngine() {
     console.log('Storing results for round', roundId)
     resultsStore.addResult(roundId, results)
 
-    // Wait for animation to finish
-    console.log('Waiting for animation to complete... (will wait', slowestTime * 1000 + 200, 'ms)')
-    await new Promise((resolve) => setTimeout(resolve, slowestTime * 1000 + 200))
+    // Get the adjusted time based on the speed multiplier
+    const speedMultiplier = raceStore.speedMultiplier
+    const adjustedWaitTime = (slowestTime * 1000 + 200) / speedMultiplier
+
+    // Wait for animation to finish with speed multiplier applied
+    console.log(
+      'Waiting for animation to complete... (will wait',
+      adjustedWaitTime,
+      'ms with',
+      speedMultiplier,
+      'x speed)',
+    )
+    await new Promise((resolve) => setTimeout(resolve, adjustedWaitTime))
 
     console.log('Simulation complete, setting isSimulating to false')
     isSimulating.value = false

@@ -3,6 +3,14 @@ import { computed } from 'vue'
 import { useResultsStore } from '@/stores/results'
 import { useHorsesStore } from '@/stores/horses'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 const resultsStore = useResultsStore()
 const horsesStore = useHorsesStore()
@@ -68,23 +76,23 @@ function formatTime(seconds: number): string {
     <CardContent class="px-6 pb-6">
       <!-- Overall standings table -->
       <div class="overflow-x-auto mb-8">
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="">
-              <th class="px-4 py-3 text-left font-semibold">Position</th>
-              <th class="px-4 py-3 text-left font-semibold">Horse</th>
-              <th class="px-4 py-3 text-left font-semibold">Total Points</th>
-              <th class="px-4 py-3 text-left font-semibold">Races</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead class="px-4 py-3">Position</TableHead>
+              <TableHead class="px-4 py-3">Horse</TableHead>
+              <TableHead class="px-4 py-3">Total Points</TableHead>
+              <TableHead class="px-4 py-3">Races</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow
               v-for="(standing, index) in overallStandings"
               :key="standing.horseId"
               class="border-b"
             >
-              <td class="px-4 py-3 font-semibold text-center">{{ index + 1 }}</td>
-              <td class="px-4 py-3">
+              <TableCell class="px-4 py-3 font-semibold text-center">{{ index + 1 }}</TableCell>
+              <TableCell class="px-4 py-3">
                 <div class="flex items-center gap-3">
                   <div
                     class="w-4 h-4 rounded-full flex-shrink-0"
@@ -94,12 +102,12 @@ function formatTime(seconds: number): string {
                     >{{ standing.horseName }} (#{{ standing.horseId }})</span
                   >
                 </div>
-              </td>
-              <td class="px-4 py-3 font-semibold">{{ standing.totalPoints }}</td>
-              <td class="px-4 py-3">{{ standing.totalRaces }}</td>
-            </tr>
-          </tbody>
-        </table>
+              </TableCell>
+              <TableCell class="px-4 py-3 font-semibold">{{ standing.totalPoints }}</TableCell>
+              <TableCell class="px-4 py-3">{{ standing.totalRaces }}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </div>
 
       <!-- Individual round results -->
@@ -112,22 +120,22 @@ function formatTime(seconds: number): string {
               <h4 class="font-semibold text-lg">Round {{ roundResult.roundId }}</h4>
             </CardHeader>
             <CardContent>
-              <table class="w-full">
-                <thead>
-                  <tr class="border-b text-sm">
-                    <th class="pb-2 font-medium text-left">Pos</th>
-                    <th class="pb-2 font-medium text-left">Horse</th>
-                    <th class="pb-2 font-medium text-left">Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
+              <Table>
+                <TableHeader>
+                  <TableRow class="text-sm">
+                    <TableHead class="pb-2 font-medium text-left">Pos</TableHead>
+                    <TableHead class="pb-2 font-medium text-left">Horse</TableHead>
+                    <TableHead class="pb-2 font-medium text-left">Time</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow
                     v-for="result in roundResult.results.slice(0, 3)"
                     :key="result.horseId"
                     class="border-b last:border-0"
                   >
-                    <td class="py-2 font-semibold">{{ result.place }}</td>
-                    <td class="py-2">
+                    <TableCell class="py-2 font-semibold">{{ result.place }}</TableCell>
+                    <TableCell class="py-2">
                       <div class="flex items-center">
                         <div
                           class="w-3 h-3 rounded-full mr-2"
@@ -140,11 +148,13 @@ function formatTime(seconds: number): string {
                           {{ horsesStore.getHorseById(result.horseId)?.name || 'Unknown' }}
                         </span>
                       </div>
-                    </td>
-                    <td class="py-2 text-sm tabular-nums">{{ formatTime(result.time) }}</td>
-                  </tr>
-                </tbody>
-              </table>
+                    </TableCell>
+                    <TableCell class="py-2 text-sm tabular-nums">{{
+                      formatTime(result.time)
+                    }}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </div>

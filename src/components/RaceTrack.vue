@@ -94,8 +94,8 @@ onMounted(() => {
 <template>
   <Card class="overflow-hidden">
     <CardHeader class="pb-3 text-center">
-      <h3 class="text-xl font-semibold">Round {{ currentRound.id }}</h3>
-      <p class="text-sm text-muted-foreground">Distance: {{ currentRound.distance }}m</p>
+      <h3 class="text-xl font-semibold">Round {{ currentRound?.id || 1 }}</h3>
+      <p class="text-sm text-muted-foreground">Distance: {{ currentRound?.distance || 1200 }}m</p>
 
       <div
         v-if="speedMultiplier > 1"

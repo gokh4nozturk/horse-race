@@ -60,7 +60,7 @@ const sortedResults = computed(() => {
             ></div>
             <div class="font-medium">{{ getHorseName(result.horseId) }}</div>
           </div>
-          <div class="font-semibold text-gray-600 tabular-nums">{{ result.time.toFixed(2) }}s</div>
+          <div class="font-semibold tabular-nums">{{ result.time.toFixed(2) }}s</div>
         </div>
       </div>
     </CardContent>

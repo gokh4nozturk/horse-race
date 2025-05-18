@@ -12,6 +12,7 @@ import ResultBoard from '@/components/ResultBoard.vue'
 import GameControls from '@/components/GameControls.vue'
 import FinalResultsBoard from '@/components/FinalResultsBoard.vue'
 import DebugPanel from '@/components/DebugPanel.vue'
+import ModeToggle from '@/components/ModeToggle.vue'
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 
@@ -113,32 +114,39 @@ watch(route.path, (newPath) => {
 
 <template>
   <div class="max-w-5xl mx-auto p-4">
-    <header class="mb-8 text-center">
+    <header class="mb-8 text-center flex flex-col gap-4">
       <h1 class="text-3xl font-bold">Horse Racing Championship</h1>
+
+      <!-- Toolbar -->
+      <div class="flex justify-between items-center">
+        <!-- Controls -->
+        <GameControls
+          :current-round-index="raceStore.currentRoundIndex"
+          :is-racing="raceStore.isRacing"
+          :can-start="raceStore.schedule.length > 0 && !raceStore.isRoundCompleted"
+          :can-next="raceStore.isRoundCompleted"
+          :is-last-round="raceStore.isLastRound"
+          @generate="handleGenerate"
+          @start="handleStart"
+          @next-round="handleNextRound"
+          @reset="handleReset"
+        />
+
+        <div class="flex gap-2">
+          <ModeToggle />
+
+          <!-- Debug Panel -->
+          <DebugPanel
+            v-model:open="debugOpen"
+            :speed-options="speedOptions"
+            @speed-change="handleSpeedChange"
+            @update:open="handleDebug"
+          />
+        </div>
+      </div>
     </header>
 
     <main class="flex flex-col gap-6 relative">
-      <!-- Debug Panel -->
-      <DebugPanel
-        v-model:open="debugOpen"
-        :speed-options="speedOptions"
-        @speed-change="handleSpeedChange"
-        @update:open="handleDebug"
-      />
-
-      <!-- Controls -->
-      <GameControls
-        :current-round-index="raceStore.currentRoundIndex"
-        :is-racing="raceStore.isRacing"
-        :can-start="raceStore.schedule.length > 0 && !raceStore.isRoundCompleted"
-        :can-next="raceStore.isRoundCompleted"
-        :is-last-round="raceStore.isLastRound"
-        @generate="handleGenerate"
-        @start="handleStart"
-        @next-round="handleNextRound"
-        @reset="handleReset"
-      />
-
       <!-- Section: Horses List -->
       <section
         v-if="
@@ -146,7 +154,7 @@ watch(route.path, (newPath) => {
         "
         class="mb-6"
       >
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Horses</h2>
+        <h2 class="text-2xl font-semibold mb-4">Horses</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <HorseCard v-for="horse in horsesStore.horses" :key="horse.id" :horse="horse" />
         </div>

@@ -41,7 +41,7 @@ function handleUpdateOpen(open: boolean) {
 
 <template>
   <Sheet :open="open" @update:open="handleUpdateOpen">
-    <SheetTrigger as-child class="absolute top-0 right-0 z-10">
+    <SheetTrigger as-child>
       <Button variant="outline">Debug</Button>
     </SheetTrigger>
     <SheetContent class="px-4 sm:max-w-md">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useHorsesStore } from '@/stores/horses'
 import { useRaceStore } from '@/stores/race'
 import { useResultsStore } from '@/stores/results'
@@ -10,23 +11,20 @@ import RaceTrack from '@/components/RaceTrack.vue'
 import ResultBoard from '@/components/ResultBoard.vue'
 import GameControls from '@/components/GameControls.vue'
 import FinalResultsBoard from '@/components/FinalResultsBoard.vue'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import DebugPanel from '@/components/DebugPanel.vue'
 
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 
 // Store instances
 const horsesStore = useHorsesStore()
 const raceStore = useRaceStore()
 const resultsStore = useResultsStore()
 const raceEngine = useRaceEngine()
+
+const router = useRouter()
+const route = useRoute()
+
+const debugOpen = ref(false)
 
 // Track if app is initialized
 const isInitialized = ref(false)
@@ -84,6 +82,14 @@ function handleSpeedChange(multiplier: number) {
   raceStore.setSpeedMultiplier(multiplier)
 }
 
+function handleDebug(open: boolean) {
+  if (open) {
+    router.replace('/debug')
+  } else {
+    router.replace('/')
+  }
+}
+
 // Initialize on mount to have horses and schedule ready
 onMounted(() => {
   console.log('HorseRaceGame component mounted')
@@ -98,6 +104,11 @@ onMounted(() => {
     'rounds',
   )
 })
+
+// Watch for route changes
+watch(route.path, (newPath) => {
+  debugOpen.value = newPath === '/debug'
+})
 </script>
 
 <template>
@@ -108,47 +119,12 @@ onMounted(() => {
 
     <main class="flex flex-col gap-6 relative">
       <!-- Debug Panel -->
-      <Sheet>
-        <SheetTrigger as-child class="absolute top-0 right-0 z-10">
-          <Button variant="outline">Debug</Button>
-        </SheetTrigger>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Debug</SheetTitle>
-            <SheetDescription>
-              This is a debug panel. It will show you the current state of the game.
-            </SheetDescription>
-          </SheetHeader>
-          <div class="mt-6 space-y-4">
-            <div class="bg-gray-50 p-4 rounded-lg border">
-              <h3 class="text-sm font-medium mb-2">Game State</h3>
-              <div class="font-mono text-xs space-y-1.5">
-                <p>currentRoundIndex: {{ raceStore.currentRoundIndex }}</p>
-                <p>isRacing: {{ raceStore.isRacing }}</p>
-                <p>isRoundCompleted: {{ raceStore.isRoundCompleted }}</p>
-                <p>canStart: {{ raceStore.schedule.length > 0 && !raceStore.isRoundCompleted }}</p>
-                <p>canNext: {{ raceStore.isRoundCompleted }}</p>
-                <p>isLastRound: {{ raceStore.isLastRound }}</p>
-              </div>
-            </div>
-
-            <div class="bg-gray-50 p-4 rounded-lg border">
-              <h3 class="text-sm font-medium mb-2">Animation Speed</h3>
-              <div class="flex gap-2">
-                <Button
-                  v-for="speed in speedOptions"
-                  :key="speed"
-                  :variant="raceStore.speedMultiplier === speed ? 'default' : 'outline'"
-                  size="sm"
-                  @click="handleSpeedChange(speed)"
-                >
-                  {{ speed }}x
-                </Button>
-              </div>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
+      <DebugPanel
+        v-model:open="debugOpen"
+        :speed-options="speedOptions"
+        @speed-change="handleSpeedChange"
+        @update:open="handleDebug"
+      />
 
       <!-- Controls -->
       <GameControls

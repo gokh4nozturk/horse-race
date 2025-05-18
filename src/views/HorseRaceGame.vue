@@ -49,22 +49,20 @@ function handleGenerate() {
 
 function handleStart() {
   console.log('Start race clicked')
-  // Only set the UI state to racing, actual race will start after countdown
+
   raceStore.isRacing = true
 
-  // Debugging amaçlı log ekleyelim
   console.log('Start button clicked, isRacing set to true - countdown should start now')
 }
 
 function handleCountdownComplete() {
   console.log('Countdown completed, now starting the actual race')
-  // Şimdi yarış motorunu başlatacağız
+
   if (!raceStore.isRacing) {
-    // Eğer geri sayım bitti ama isRacing false ise, tekrar true yapalım
     console.log('isRacing is false, setting it to true')
     raceStore.isRacing = true
   }
-  // Yarış mantığını başlat
+
   raceEngine.startRace()
   console.log('Race engine startRace called after countdown')
 }
@@ -112,10 +110,8 @@ function handleDebug(open: boolean) {
 // Initialize on mount to have horses and schedule ready
 onMounted(() => {
   console.log('HorseRaceGame component mounted')
-  // Initialize on mount
   raceEngine.initialize()
 
-  // Sayfanın yüklenmesi sırasında kısa bir gecikme ekleyerek, store'ların güncellenmesini sağlayalım
   setTimeout(() => {
     isInitialized.value = true
     console.log(

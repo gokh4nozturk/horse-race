@@ -156,7 +156,7 @@ onMounted(async () => {
     <header
       class="mt-1 max-w-7xl w-full fixed z-50 backdrop-blur-sm border-border border-b px-6 py-3 flex justify-between items-center shadow-lg">
       <div class="flex items-center gap-3">
-        <img src="" :alt="t('game.altChampionshipLogo')" class="w-10 h-10"
+        <img src="/public/apple-touch-icon.png" :alt="t('game.altChampionshipLogo')" class="w-10 h-10"
           onerror="this.src='https://placehold.co/40x40?text=🏇'" />
         <h1 class="text-3xl font-bold tracking-wide text-foreground max-sm:sr-only">
           {{ t('game.horseRacingChampionship') }}

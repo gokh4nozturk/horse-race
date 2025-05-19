@@ -39,7 +39,7 @@ const hasRaceDuration = computed(() => {
 
 // Background color class based on index
 const bgClass = computed(() => {
-  return props.index % 2 === 0 ? 'bg-background/90' : 'bg-background/95'
+  return props.index % 2 === 0 ? 'bg-emerald-400/90 border-emerald-600 dark:border-emerald-800 dark:bg-emerald-800/95' : 'bg-emerald-400/95 border-emerald-600 dark:border-emerald-800 dark:bg-emerald-800/90'
 })
 
 // Animation variables
@@ -354,8 +354,6 @@ onUnmounted(() => {
               <div class="w-28 h-3 bg-muted rounded-full overflow-hidden shadow-inner relative">
                 <div class="h-full rounded-full relative overflow-hidden"
                   :style="{ width: `${horse.condition}%`, backgroundColor: horse.color }">
-                  <!-- Shiny effect on condition bar -->
-                  <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-50"></div>
                 </div>
 
                 <!-- Condition percentage indicator -->

@@ -69,12 +69,11 @@ function formatTime(seconds: number): string {
 </script>
 
 <template>
-  <Card class="overflow-hidden border-0 bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl">
-    <CardHeader class="pb-4 border-b border-gray-700 flex justify-between items-center">
+  <Card class="overflow-hidden border-0  text-white shadow-xl">
+    <CardHeader class="pb-4 border-b flex justify-between items-center">
       <div class="flex items-center justify-center w-full relative">
         <div class="absolute left-0 top-0 text-3xl">🏆</div>
-        <h2
-          class="text-2xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-300 to-amber-400">
+        <h2 class="text-2xl font-bold text-center">
           Championship Final Results
         </h2>
       </div>
@@ -125,29 +124,29 @@ function formatTime(seconds: number): string {
 
       <!-- Overall standings table -->
       <div class="p-4">
-        <div class="text-sm text-gray-400 uppercase tracking-wider mb-2 font-medium">Standings</div>
-        <div class="overflow-hidden rounded-lg border border-gray-700">
+        <div class="text-sm uppercase tracking-wider mb-2 font-medium">Standings</div>
+        <div class="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
-              <TableRow class="border-b border-gray-700 bg-gray-800/50">
-                <TableHead class="text-white px-4 py-3 w-16">Position</TableHead>
-                <TableHead class="text-white px-4 py-3">Horse</TableHead>
-                <TableHead class="text-white px-4 py-3 text-right">Points</TableHead>
-                <TableHead class="text-white px-4 py-3 text-right">Races</TableHead>
+              <TableRow class="border-b">
+                <TableHead class="px-4 py-3 w-16">Position</TableHead>
+                <TableHead class="px-4 py-3">Horse</TableHead>
+                <TableHead class="px-4 py-3 text-right">Points</TableHead>
+                <TableHead class="px-4 py-3 text-right">Races</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow v-for="(standing, index) in overallStandings" :key="standing.horseId"
-                class="border-b border-gray-700/50 last:border-0 hover:bg-gray-800/30 transition-colors" :class="{
-                  'bg-amber-900/20': index === 0,
-                  'bg-gray-700/20': index === 1,
-                  'bg-orange-900/20': index === 2,
+                class="border-b last:border-0 transition-colors" :class="{
+                  'bg-emerald-900/20': index === 0,
+                  'bg-blue-700/20': index === 1,
+                  'bg-red-400/20': index === 2,
                 }">
                 <TableCell class="px-4 py-3 font-bold text-center">
                   <div class="w-8 h-8 rounded-full mx-auto flex items-center justify-center" :class="{
-                    'bg-amber-500 text-amber-950': index === 0,
-                    'bg-gray-400 text-gray-900': index === 1,
-                    'bg-orange-700 text-orange-100': index === 2,
+                    'bg-emerald-500 text-emerald-950': index === 0,
+                    'bg-blue-400 text-blue-900': index === 1,
+                    'bg-red-700 text-red-100': index === 2,
                     'bg-gray-800 text-gray-300': index > 2,
                   }">
                     {{ index + 1 }}
@@ -179,9 +178,8 @@ function formatTime(seconds: number): string {
           Round Results
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card v-for="roundResult in allResults" :key="roundResult.roundId"
-            class="border border-gray-700 bg-gray-800/40 overflow-hidden">
-            <CardHeader class="pb-2 bg-gray-800">
+          <Card v-for="roundResult in allResults" :key="roundResult.roundId" class="border overflow-hidden">
+            <CardHeader class="pb-2">
               <div class="flex items-center justify-between">
                 <h4 class="font-bold text-lg">Round {{ roundResult.roundId }}</h4>
                 <div class="text-xs text-gray-400 font-mono">
@@ -193,14 +191,14 @@ function formatTime(seconds: number): string {
               <div class="space-y-2">
                 <div v-for="result in roundResult.results.slice(0, 3)" :key="result.horseId"
                   class="flex items-center p-2 rounded border-l-2" :class="{
-                    'bg-amber-950/30 border-amber-500': result.place === 1,
-                    'bg-gray-800/30 border-gray-500': result.place === 2,
-                    'bg-orange-950/30 border-orange-700': result.place === 3,
+                    'bg-emerald-950/30 border-emerald-500': result.place === 1,
+                    'bg-blue-800/30 border-blue-500': result.place === 2,
+                    'bg-red-950/30 border-red-700': result.place === 3,
                   }">
                   <div class="font-bold w-6 h-6 rounded-full flex items-center justify-center text-xs mr-2" :class="{
-                    'bg-amber-500 text-amber-950': result.place === 1,
-                    'bg-gray-500 text-gray-100': result.place === 2,
-                    'bg-orange-700 text-white': result.place === 3,
+                    'bg-emerald-500 text-emerald-950': result.place === 1,
+                    'bg-blue-500 text-blue-100': result.place === 2,
+                    'bg-red-700 text-white': result.place === 3,
                   }">
                     {{ result.place }}
                   </div>

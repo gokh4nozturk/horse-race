@@ -7,10 +7,10 @@ defineProps<{
 
 <template>
   <div
-    class="flex justify-between px-6 py-2 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-700/50 text-center text-xs font-mono transition-all duration-700 relative"
+    class="flex justify-between px-6 py-2 bg-gradient-to-r from-background/90 via-background/80 to-background/90 border-b border-gray-700/50 text-center text-xs font-mono transition-all duration-700 relative"
     :class="{ 'py-1 opacity-80': isRacing }">
     <!-- Distance marker lines -->
-    <div class="absolute inset-x-0 bottom-0 h-1 bg-gray-800 flex">
+    <div class="absolute inset-x-0 bottom-0 h-1 bg-background/80 flex">
       <div class="h-full w-1/4 border-r border-gray-600"></div>
       <div class="h-full w-1/4 border-r border-gray-600"></div>
       <div class="h-full w-1/4 border-r border-gray-600"></div>

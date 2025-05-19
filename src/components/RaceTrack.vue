@@ -5,6 +5,8 @@ import { useRaceEngine } from '@/composables/useRaceEngine'
 import { type Horse } from '@/stores/horses'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { toast } from 'vue-sonner'
+import { Alert } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-vue-next'
 
 // Import modular components
 import RaceHeader from '@/components/race/RaceHeader.vue'
@@ -274,8 +276,7 @@ const handleHorseFinished = (horseId: number) => {
 }
 </script>
 <template>
-  <Card
-    class="overflow-hidden border-0 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white shadow-2xl relative">
+  <Card class="overflow-hidden relative">
     <!-- Race track header -->
     <CardHeader>
       <RaceHeader :round-id="currentRound?.id || 1" :distance="currentRound?.distance || 1200" :is-racing="isRacing"
@@ -286,9 +287,13 @@ const handleHorseFinished = (horseId: number) => {
     <CountdownTimer ref="countdownRef" :is-active="isRacing" @complete="handleCountdownComplete" />
 
     <!-- Error message for race errors -->
-    <div v-if="raceError" class="bg-red-900/80 text-white px-4 py-3 text-center font-semibold">
-      {{ raceError }}
-    </div>
+    <Alert v-if="raceError" variant="destructive">
+      <AlertCircle class="h-4 w-4" />
+      <AlertTitle>Error</AlertTitle>
+      <AlertDescription>
+        {{ raceError }}
+      </AlertDescription>
+    </Alert>
 
     <!-- Race track content -->
     <CardContent class="p-0 relative">
@@ -301,7 +306,8 @@ const handleHorseFinished = (horseId: number) => {
       <!-- Track content with lanes -->
       <div class="relative">
         <!-- Racetrack background with 3D effect -->
-        <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 opacity-40"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-background/90 via-background/80 to-background/90 opacity-40">
+        </div>
 
         <!-- Horse lanes -->
         <div class="px-0">

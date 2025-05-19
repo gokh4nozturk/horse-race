@@ -122,6 +122,26 @@
   }
 }
 
+/* Custom animations */
+@keyframes horse-dust {
+  0%,
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translateY(-2px) scale(1.2) rotate(-5deg);
+    opacity: 0.8;
+  }
+}
+
+@layer utilities {
+  .animate-horse-dust {
+    animation: horse-dust 0.3s ease-in-out infinite;
+  }
+}
+
 /* View transition */
 
 ::view-transition-group(root) {

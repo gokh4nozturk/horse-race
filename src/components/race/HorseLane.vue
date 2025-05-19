@@ -3,6 +3,7 @@ import { computed, ref, onMounted, watch, onUnmounted } from 'vue'
 import { type Horse } from '@/stores/horses'
 import HorseAvatar from './HorseAvatar.vue'
 import { useRaceStore } from '@/stores/race'
+import Badge from '../ui/badge/Badge.vue';
 
 const props = defineProps<{
   horse: Horse
@@ -38,7 +39,7 @@ const hasRaceDuration = computed(() => {
 
 // Background color class based on index
 const bgClass = computed(() => {
-  return props.index % 2 === 0 ? 'bg-gray-900/70' : 'bg-gray-950/70'
+  return props.index % 2 === 0 ? 'bg-background/90' : 'bg-background/95'
 })
 
 // Animation variables
@@ -295,7 +296,7 @@ onUnmounted(() => {
 
     <!-- Collapsible horse info area -->
     <div
-      class="flex-shrink-0 flex items-center relative z-10 border-r border-gray-700/70 transition-all duration-700 bg-gradient-to-r from-gray-900/90 to-transparent overflow-hidden"
+      class="flex-shrink-0 flex items-center relative z-10 border-r transition-all duration-700 bg-gradient-to-r from-background/90 via-background/80 to-background/90 overflow-hidden"
       :class="{
         'w-64 px-5 py-2': !isRacing,
         'w-14 px-2 py-1': isRacing,
@@ -327,8 +328,8 @@ onUnmounted(() => {
           <div
             class="w-10 h-10 flex items-center justify-center text-lg font-bold mr-3 flex-shrink-0 rounded-lg shadow-lg transition-all duration-700 border-2 overflow-hidden"
             :style="{ borderColor: horse.color }">
-            <div class="absolute inset-0 opacity-60 rounded-lg" :style="{ backgroundColor: horse.color }"></div>
-            <span class="relative text-white font-extrabold">{{ index + 1 }}</span>
+            <div class="absolute inset-0 opacity-60 rounded-lg" :style="{ backgroundColor: horse.color }" />
+            <span class="relative text-foreground font-extrabold">{{ index + 1 }}</span>
           </div>
           <!-- Pulsing effect when racing -->
           <div v-if="isRacing" class="absolute inset-0 rounded-lg animate-ping"
@@ -340,17 +341,16 @@ onUnmounted(() => {
           <!-- Horse name with better typography -->
           <div class="font-bold text-base flex items-center">
             <span>{{ horse.name }}</span>
-            <span class="ml-1.5 px-1.5 py-0.5 text-xs rounded-md text-neutral-700"
-              :style="{ backgroundColor: horse.color }">
+            <Badge class="ml-1.5 text-xs" variant="outline">
               #{{ horse.id }}
-            </span>
+            </Badge>
           </div>
 
           <!-- Horse condition bar with improved visualization -->
           <div class="mt-1">
             <div class="flex items-center gap-2">
-              <span class="text-xs text-gray-400">Condition</span>
-              <div class="w-28 h-3 bg-gray-800/80 rounded-full overflow-hidden shadow-inner relative">
+              <span class="text-xs text-muted-foreground">Condition</span>
+              <div class="w-28 h-3 bg-muted rounded-full overflow-hidden shadow-inner relative">
                 <div class="h-full rounded-full relative overflow-hidden"
                   :style="{ width: `${horse.condition}%`, backgroundColor: horse.color }">
                   <!-- Shiny effect on condition bar -->
@@ -359,8 +359,8 @@ onUnmounted(() => {
 
                 <!-- Condition percentage indicator -->
                 <span class="absolute inset-0 text-[10px] flex items-center justify-center font-medium" :class="{
-                  'text-white': horse.condition < 40,
-                  'text-gray-200': horse.condition >= 40,
+                  'text-foreground': horse.condition < 40,
+                  'text-neutral-700': horse.condition >= 40,
                 }">
                   {{ horse.condition }}%
                 </span>

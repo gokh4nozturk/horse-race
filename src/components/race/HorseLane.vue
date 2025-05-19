@@ -3,7 +3,8 @@ import { computed, ref, onMounted, watch, onUnmounted } from 'vue'
 import { type Horse } from '@/stores/horses'
 import HorseAvatar from './HorseAvatar.vue'
 import { useRaceStore } from '@/stores/race'
-import Badge from '../ui/badge/Badge.vue';
+import Badge from '@/components/ui/badge/Badge.vue';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
   horse: Horse
@@ -18,6 +19,8 @@ const emit = defineEmits(['horseFinished'])
 
 // Add race distance context from the parent
 const raceStore = useRaceStore()
+
+const { t } = useI18n()
 
 // Calculate the finish line position based on current race distance
 const finishLinePercentage = computed(() => {
@@ -350,7 +353,7 @@ onUnmounted(() => {
           <!-- Horse condition bar with improved visualization -->
           <div class="mt-1">
             <div class="flex items-center gap-2">
-              <span class="text-xs text-muted-foreground">Condition</span>
+              <span class="text-xs text-muted-foreground">{{ t('game.condition') }}</span>
               <div class="w-28 h-3 bg-muted rounded-full overflow-hidden shadow-inner relative">
                 <div class="h-full rounded-full relative overflow-hidden"
                   :style="{ width: `${horse.condition}%`, backgroundColor: horse.color }">

@@ -2,6 +2,9 @@
 import { type Horse } from '@/stores/horses'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Props
 defineProps<{
@@ -31,7 +34,7 @@ defineProps<{
     </CardHeader>
     <CardContent class="px-4 py-3 pt-0">
       <div class="mt-2">
-        <div class="text-xs uppercase tracking-wider text-gray-400 mb-1">Condition</div>
+        <div class="text-xs uppercase tracking-wider text-gray-400 mb-1">{{ t('game.condition') }}</div>
         <div class="flex items-center">
           <div class="flex-1 h-3 bg-gray-700 rounded-full overflow-hidden relative">
             <div class="h-full rounded-full relative z-10 flex items-center"

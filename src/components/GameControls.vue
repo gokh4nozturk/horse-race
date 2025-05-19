@@ -7,6 +7,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Play, SkipForward, Ban, MemoryStick } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 defineProps<{
   currentRoundIndex: number
@@ -56,7 +59,7 @@ const onReset = () => {
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          Generate Race
+          {{ t('game.generateRace') }}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -70,7 +73,7 @@ const onReset = () => {
             <Play class="size-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent> {{ currentRoundIndex < 0 ? 'Start Race' : 'Start Round' }} </TooltipContent>
+        <TooltipContent> {{ currentRoundIndex < 0 ? t('game.startRace') : t('game.startRound') }} </TooltipContent>
       </Tooltip>
     </TooltipProvider>
 
@@ -84,7 +87,7 @@ const onReset = () => {
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          Next Round
+          {{ t('game.nextRound') }}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -98,7 +101,7 @@ const onReset = () => {
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          Reset Race
+          {{ t('game.resetRace') }}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

@@ -2,6 +2,9 @@
 import { computed } from 'vue'
 import { TrendingUp, Zap } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   roundId: number
@@ -12,9 +15,9 @@ const props = defineProps<{
 }>()
 
 const raceTitle = computed(() => {
-  if (props.isCountingDown) return 'Ready...'
-  if (props.isRacing) return 'Race in Progress'
-  return 'Ready to Race'
+  if (props.isCountingDown) return t('game.header.ready')
+  if (props.isRacing) return t('game.header.inProgress')
+  return t('game.header.readyToRace')
 })
 </script>
 
@@ -42,7 +45,7 @@ const raceTitle = computed(() => {
         { 'px-3 py-1 scale-95': isRacing }
       )">
         <TrendingUp class="size-4 mr-1.5 shrink-0" />
-        <span class="mr-2">Distance:</span>
+        <span class="mr-2">{{ t('game.header.distance') }}:</span>
         <span class="font-mono font-bold text-base">{{ distance }}m</span>
       </div>
 
@@ -51,7 +54,7 @@ const raceTitle = computed(() => {
         { 'px-3 py-1 scale-95': isRacing }
       )">
         <Zap class="size-4 mr-1.5 shrink-0" />
-        <span class="mr-2">Speed:</span>
+        <span class="mr-2">{{ t('game.header.speed') }}:</span>
         <span class="font-mono font-bold text-base">{{ speedMultiplier }}x</span>
       </div>
     </div>

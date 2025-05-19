@@ -2,7 +2,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { useRaceStore } from '@/stores/race'
 import { useRouter, useRoute } from 'vue-router'
-
+import { useI18n } from 'vue-i18n'
 import {
   Sheet,
   SheetContent,
@@ -14,12 +14,19 @@ import {
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { QUERY_PARAMS } from '@/router/constants'
+import { BugPlay } from 'lucide-vue-next'
 
 // Store instance
 const raceStore = useRaceStore()
+
+// Router instance
 const router = useRouter()
 const route = useRoute()
 
+// Translation instance
+const { t } = useI18n()
+
+// State variables
 const open = ref(false)
 const speedMultiplier = ref('1')
 let isUpdatingFromRoute = false
@@ -80,18 +87,29 @@ function handleDebug(isOpen: boolean) {
 <template>
   <Sheet :open="open" @update:open="handleDebug">
     <SheetTrigger as-child>
-      <Button variant="outline">Debug</Button>
+      <Button variant="outline" size="icon">
+        <BugPlay class="size-4" />
+        <span class="sr-only">
+          {{ t('debug.debugPanel') }}
+        </span>
+      </Button>
     </SheetTrigger>
     <SheetContent class="px-4 sm:max-w-md">
       <SheetHeader>
-        <SheetTitle>Debug</SheetTitle>
+        <SheetTitle>
+
+          {{ t('debug.debugPanel') }}
+
+        </SheetTitle>
         <SheetDescription>
-          This is a debug panel. It will show you the current state of the game.
+          {{ t('debug.debugPanelDescription') }}
         </SheetDescription>
       </SheetHeader>
       <div class="mt-6 space-y-4">
         <div class="p-4 rounded-lg border">
-          <h3 class="text-sm font-medium mb-2">Game State</h3>
+          <h3 class="text-sm font-medium mb-2">
+            {{ t('debug.gameState') }}
+          </h3>
           <div class="font-mono text-xs space-y-1.5">
             <p>currentRoundIndex: {{ raceStore.currentRoundIndex }}</p>
             <p>isRacing: {{ raceStore.isRacing }}</p>
@@ -103,7 +121,9 @@ function handleDebug(isOpen: boolean) {
         </div>
 
         <div class="p-4 rounded-lg border flex items-center gap-2 justify-between">
-          <h3 class="text-sm font-medium">Animation Speed</h3>
+          <h3 class="text-sm font-medium">
+            {{ t('debug.animationSpeed') }}
+          </h3>
           <ToggleGroup type="single" variant="outline" v-model="speedMultiplier">
             <ToggleGroupItem value="1" aria-label="Toggle speed"> 1x </ToggleGroupItem>
             <ToggleGroupItem value="2" aria-label="Toggle speed"> 2x </ToggleGroupItem>

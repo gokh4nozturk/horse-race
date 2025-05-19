@@ -4,6 +4,9 @@ import { useHorsesStore } from '@/stores/horses'
 import { type HorseResult } from '@/stores/results'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   roundId: number
@@ -32,14 +35,14 @@ const sortedResults = computed(() => {
   <Card class="overflow-hidden shadow-xl border">
     <CardHeader class="pb-4 border-b relative">
       <Badge class="absolute top-3 right-3">
-        Round {{ roundId }}
+        {{ t('game.round') }} {{ roundId }}
       </Badge>
-      <h3 class="text-2xl font-bold text-center">Race Results</h3>
+      <h3 class="text-2xl font-bold text-center">{{ t('game.raceResults') }}</h3>
     </CardHeader>
 
     <CardContent class="p-0">
       <div v-if="!results.length" class="text-center text-gray-400 py-10 italic">
-        No results to display
+        {{ t('game.noResultsToDisplay') }}
       </div>
 
       <div v-else>
@@ -104,7 +107,7 @@ const sortedResults = computed(() => {
         <!-- Other positions -->
         <div v-if="sortedResults.length > 3" class="px-4 pb-4">
           <div class="text-sm text-muted-foreground uppercase tracking-wider mb-2 mt-2 font-medium">
-            Other Positions
+            {{ t('game.otherPositions') }}
           </div>
 
           <div class="space-y-2">

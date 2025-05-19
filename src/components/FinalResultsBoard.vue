@@ -11,6 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const resultsStore = useResultsStore()
 const horsesStore = useHorsesStore()
@@ -41,7 +44,7 @@ const overallStandings = computed(() => {
     const horse = horsesStore.getHorseById(Number(horseId))
     return {
       horseId: Number(horseId),
-      horseName: horse?.name || 'Unknown Horse',
+      horseName: horse?.name || t('game.unknownHorse'),
       horseColor: horse?.color || '#ccc',
       totalPoints: points,
       totalRaces: countHorseRaces(Number(horseId)),
@@ -74,7 +77,7 @@ function formatTime(seconds: number): string {
       <div class="flex items-center justify-center w-full relative">
         <div class="absolute left-0 top-0 text-3xl">🏆</div>
         <h2 class="text-2xl font-bold text-center">
-          Championship Final Results
+          {{ t('game.championshipFinalResults') }}
         </h2>
       </div>
     </CardHeader>
@@ -90,7 +93,7 @@ function formatTime(seconds: number): string {
         <div class="flex items-center justify-center relative z-10">
           <div class="text-center">
             <div class="text-amber-500 text-sm font-bold uppercase tracking-widest mb-2">
-              Champion
+              {{ t('game.champion') }}
             </div>
             <div class="flex justify-center">
               <div
@@ -106,16 +109,16 @@ function formatTime(seconds: number): string {
             <h3 class="text-3xl font-bold">{{ overallStandings[0].horseName }}</h3>
             <div class="flex items-center justify-center gap-3 mt-2">
               <div class="flex flex-col items-center bg-gray-800/50 p-2 rounded-lg min-w-14">
-                <span class="text-xs text-gray-400">Points</span>
+                <span class="text-xs text-gray-400">{{ t('game.points') }}</span>
                 <span class="text-xl font-bold text-amber-400">{{
                   overallStandings[0].totalPoints
-                  }}</span>
+                }}</span>
               </div>
               <div class="flex flex-col items-center bg-gray-800/50 p-2 rounded-lg min-w-14">
-                <span class="text-xs text-gray-400">Races</span>
+                <span class="text-xs text-gray-400">{{ t('game.races') }}</span>
                 <span class="text-xl font-bold text-amber-400">{{
                   overallStandings[0].totalRaces
-                  }}</span>
+                }}</span>
               </div>
             </div>
           </div>
@@ -124,15 +127,15 @@ function formatTime(seconds: number): string {
 
       <!-- Overall standings table -->
       <div class="p-4">
-        <div class="text-sm uppercase tracking-wider mb-2 font-medium">Standings</div>
+        <div class="text-sm uppercase tracking-wider mb-2 font-medium">{{ t('game.standings') }}</div>
         <div class="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow class="border-b">
-                <TableHead class="px-4 py-3 w-16">Position</TableHead>
-                <TableHead class="px-4 py-3">Horse</TableHead>
-                <TableHead class="px-4 py-3 text-right">Points</TableHead>
-                <TableHead class="px-4 py-3 text-right">Races</TableHead>
+                <TableHead class="px-4 py-3 w-16">{{ t('game.position') }}</TableHead>
+                <TableHead class="px-4 py-3">{{ t('game.horse') }}</TableHead>
+                <TableHead class="px-4 py-3 text-right">{{ t('game.points') }}</TableHead>
+                <TableHead class="px-4 py-3 text-right">{{ t('game.races') }}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -175,15 +178,15 @@ function formatTime(seconds: number): string {
       <!-- Individual round results -->
       <div class="px-4 pb-6">
         <div class="text-sm text-gray-400 uppercase tracking-wider mb-3 mt-6 font-medium">
-          Round Results
+          {{ t('game.roundsResults') }}
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card v-for="roundResult in allResults" :key="roundResult.roundId" class="border overflow-hidden">
             <CardHeader class="pb-2">
               <div class="flex items-center justify-between">
-                <h4 class="font-bold text-lg">Round {{ roundResult.roundId }}</h4>
+                <h4 class="font-bold text-lg">{{ t('game.round') }} {{ roundResult.roundId }}</h4>
                 <div class="text-xs text-gray-400 font-mono">
-                  {{ roundResult.results.length }} horses
+                  {{ roundResult.results.length }} {{ t('game.horses') }}
                 </div>
               </div>
             </CardHeader>

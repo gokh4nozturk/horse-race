@@ -46,6 +46,10 @@ This project is a horse racing simulation built with Vue 3, TypeScript, and Vite
 - **Results Tracking**: Track race results and performance statistics
 - **Responsive Design**: Works on different screen sizes
 
+## Build Features
+
+- **Console Log Removal**: All console.log statements are automatically removed in production builds to improve performance and security
+
 ## Testing
 
 The application has comprehensive test coverage:

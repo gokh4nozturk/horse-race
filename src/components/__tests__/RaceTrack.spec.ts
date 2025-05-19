@@ -5,8 +5,6 @@ import { createPinia, setActivePinia } from 'pinia'
 import RaceTrack from '../RaceTrack.vue'
 import { useRaceStore } from '@/stores/race'
 import { useHorsesStore } from '@/stores/horses'
-import { type Horse } from '@/stores/horses'
-import { useResultsStore } from '@/stores/results'
 
 // Mock the raceEngine composable
 vi.mock('@/composables/useRaceEngine', () => ({

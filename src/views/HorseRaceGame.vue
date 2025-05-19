@@ -150,7 +150,7 @@ onMounted(async () => {
     ">
     <!-- Top Navigation Bar -->
     <header
-      class="bg-card border-border border-b px-6 py-3 flex justify-between items-center shadow-lg backdrop-blur-sm">
+      class="mt-1 max-w-7xl w-full fixed z-50 backdrop-blur-sm border-border border-b px-6 py-3 flex justify-between items-center shadow-lg">
       <div class="flex items-center gap-3">
         <img src="" alt="Championship Logo" class="w-10 h-10" onerror="this.src='https://placehold.co/40x40?text=🏇'" />
         <h1 class="text-3xl font-bold tracking-wide text-foreground">
@@ -164,7 +164,7 @@ onMounted(async () => {
       </div>
     </header>
 
-    <main class="container mx-auto grid grid-cols-12 gap-5 p-4">
+    <main class="container mx-auto grid grid-cols-12 gap-5 p-4 pt-[calc(var(--spacing-header)+1rem)]">
       <!-- Main Race Area - Takes most of the screen -->
       <section v-if="raceStore.schedule.length > 0"
         class="col-span-12 lg:col-span-9 mb-4 rounded-xl border border-border bg-card backdrop-blur-sm overflow-hidden shadow-xl relative">

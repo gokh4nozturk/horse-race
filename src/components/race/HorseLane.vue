@@ -285,7 +285,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex h-20 relative overflow-hidden transition-all duration-500" :class="[bgClass, { 'h-16': isRacing }]">
+  <div class="flex h-20 relative overflow-hidden transition-all duration-500 border-b border-dashed"
+    :class="[bgClass, { 'h-16': isRacing }]">
     <!-- Lane marker -->
     <div class="absolute inset-y-0 left-0 w-1 transition-colors duration-300"
       :style="{ backgroundColor: horse.color }" />

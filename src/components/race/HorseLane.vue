@@ -101,8 +101,8 @@ const animateHorse = (timestamp: number) => {
   const progress = Math.min(elapsedMs / duration, 1)
 
   // Update position with easing
-  // Using cubic-bezier-like easing
-  const eased = cubicBezier(0.34, 1.1, 0.64, 1, progress)
+  // Using a different easing for slow start and fast acceleration
+  const eased = cubicBezier(0.18, 0, 0.82, 1, progress)
 
   // Calculate new position based on animation progress
   // Starting point (12px) + (distance to finish * progress)

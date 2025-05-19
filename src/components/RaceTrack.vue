@@ -5,7 +5,7 @@ import { useRaceEngine } from '@/composables/useRaceEngine'
 import { type Horse } from '@/stores/horses'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { toast } from 'vue-sonner'
-import { Alert } from '@/components/ui/alert'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle } from 'lucide-vue-next'
 
 // Import modular components

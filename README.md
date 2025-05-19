@@ -23,8 +23,9 @@ This project is a horse racing simulation built with Vue 3, TypeScript, and Vite
 - **Testing**:
   - Unit Tests: Vitest + Vue Test Utils
   - E2E Tests: Playwright
-- **Animation**: Vue transitions and CSS animations
-- **UI Components**: Custom UI components
+- **Animation**: Vue transitions, CSS animations and motion-v
+- **UI Components**: Shadcn UI Vue components
+- **Internationalization**: Vue I18n
 
 ## Project Structure
 
